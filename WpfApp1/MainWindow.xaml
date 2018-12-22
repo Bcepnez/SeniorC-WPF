@@ -5,8 +5,9 @@
         xmlns:h="http://helix-toolkit.org/wpf"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
+        xmlns:s3D="http://schemas.abtsoftware.co.uk/scichart3D"
         mc:Ignorable="d"
-        Title="3D reconstruction from UAV" Height="450" Width="800"
+        Title="3D reconstruction from UAV" Height="478.8" Width="800"
         Icon="BNK48.ico">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -34,10 +35,66 @@
                         </FlowDocument>
                     </RichTextBox>
 
-                    
-                    <Viewport3D Margin="122,0,10,9.6" Width="656" Name="myViewport3D"/>
-                    
-                    <!--<Viewport3D Name="viewport3D1">
+
+                    <Viewport3D Name="mViewport3D" Margin="137,0,48,46.6">
+                        <Viewport3D.Camera>
+                            <PerspectiveCamera x:Name = "camMain" Position = "6 5 4" LookDirection = "-6 -5 -4">
+                            </PerspectiveCamera>
+                        </Viewport3D.Camera>
+
+                        <ModelVisual3D>
+                            <ModelVisual3D.Content>
+                                <DirectionalLight x:Name = "dirLightMain" Direction = "-1,-1,-1">
+                                </DirectionalLight>
+                            </ModelVisual3D.Content>
+                        </ModelVisual3D>
+                        <ModelVisual3D x:Name="UIElement3DContainer">
+                            <local:Model3DControl />
+                            <ModelVisual3D.Transform>
+                                <Transform3DGroup >
+                                    <Transform3DGroup.Children>
+                                        <RotateTransform3D x:Name="myXTransform">
+                                            <RotateTransform3D.Rotation >
+                                                <AxisAngleRotation3D x:Name = "rotate3" Axis = "0 0 1"/>
+                                            </RotateTransform3D.Rotation>
+                                        </RotateTransform3D>
+                                        <RotateTransform3D x:Name="myYTransform">
+                                            <RotateTransform3D.Rotation >
+                                                <AxisAngleRotation3D x:Name = "rotate2" Axis = "0 1 0"/>
+                                            </RotateTransform3D.Rotation>
+                                        </RotateTransform3D>
+                                    </Transform3DGroup.Children>
+                                </Transform3DGroup>
+                            </ModelVisual3D.Transform>
+                        </ModelVisual3D>
+                        <ModelVisual3D Content = "{Binding myModelVisual3D}"/>
+                    </Viewport3D>
+
+                        <!--<s3D:SciChart3DSurface Name="sciChart3DSurface" WorldDimensions="400,0,400">
+                            <s3D:SciChart3DSurface.Camera>
+                                <s3D:Camera3D Target="0,50,0" Position="-400,200,400"></s3D:Camera3D>
+                            </s3D:SciChart3DSurface.Camera>
+                            <s3D:SciChart3DSurface.XAxis>
+                                <s3D:NumericAxis3D/>
+                            </s3D:SciChart3DSurface.XAxis>
+                            <s3D:SciChart3DSurface.YAxis>
+                                <s3D:NumericAxis3D/>
+                            </s3D:SciChart3DSurface.YAxis>
+                            <s3D:SciChart3DSurface.ZAxis>
+                                <s3D:NumericAxis3D/>
+                            </s3D:SciChart3DSurface.ZAxis>
+                            <s3D:SciChart3DSurface.ChartModifier>
+                                <s3D:ModifierGroup3D>
+                                    <s3D:FreeLookModifier3D ExecuteOn="MouseLeftButton" ExecuteWhen="Shift"/>
+                                    <s3D:OrbitModifier3D ExecuteOn="MouseLeftButton"/>
+                                    <s3D:VertexSelectionModifier3D ExecuteOn="MouseLeftButton" ExecuteWhen="Ctrl"/>
+                                    <s3D:MouseWheelZoomModifier3D/>
+                                    <s3D:ZoomExtentsModifier3D ResetPosition="-400,200,400" ResetTarget="0,50,0"  AnimateDurationMs="500"/>
+                                </s3D:ModifierGroup3D>
+                            </s3D:SciChart3DSurface.ChartModifier>
+                        </s3D:SciChart3DSurface>-->
+
+                        <!--<Viewport3D Name="viewport3D1">
 
                         <Viewport3D.Camera>
                             <PerspectiveCamera x:Name = "camMain" Position = "6 5 4" LookDirection = "-6 -5 -4">
@@ -113,6 +170,25 @@
                             </TransformGroup>
                         </Slider.RenderTransform>
                     </Slider>-->
+                    <Slider Height = "32" HorizontalAlignment = "Left"  
+                        Margin = "137,367,0,0" Name = "slider1" 
+                        VerticalAlignment = "Top" Width = "641"  
+                        Maximum = "360" 
+                        Value = "{Binding ElementName = rotate3, Path=Angle}" />
+                    <Slider Height = "32" HorizontalAlignment = "Left"  
+                        Margin = "610,151,-149,0" x:Name = "slider1_Copy" 
+                        VerticalAlignment = "Top" Width = "327"  
+                        Maximum = "360" 
+                        Value = "{Binding Angle, ElementName=rotate2}" RenderTransformOrigin="0.5,0.5" >
+                        <Slider.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="269.672"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </Slider.RenderTransform>
+                    </Slider>
                 </Grid>
             </TabItem>
             <TabItem Header="UAV">
