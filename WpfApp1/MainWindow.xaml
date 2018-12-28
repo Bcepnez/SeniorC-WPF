@@ -8,7 +8,8 @@
         xmlns:s3D="http://schemas.abtsoftware.co.uk/scichart3D"
         mc:Ignorable="d"
         Title="3D reconstruction from UAV" Height="478.8" Width="800"
-        Icon="BNK48.ico">
+        Icon="BNK48.ico"
+        MouseWheel="Grid_MouseWheel">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
@@ -34,78 +35,88 @@
                             </Paragraph>
                         </FlowDocument>
                     </RichTextBox>
-
-
-                    <!--<Viewport3D Name="mViewport3D" Margin="137,0,48,46.6">
+                    <Viewport3D Name="viewport3D1" Margin="137,0,38,40.4">
                         <Viewport3D.Camera>
-                            <PerspectiveCamera x:Name = "camMain" Position = "6 5 4" LookDirection = "-6 -5 -4">
+                            <PerspectiveCamera x:Name = "camMain" Position = "10 5 4" LookDirection = "-10 -5 -4">
                             </PerspectiveCamera>
                         </Viewport3D.Camera>
 
                         <ModelVisual3D>
                             <ModelVisual3D.Content>
-                                <DirectionalLight x:Name = "dirLightMain" Direction = "-1,-1,-1">
-                                </DirectionalLight>
+                                <DirectionalLight x:Name = "dirLightMain" Direction = "-1,-1,-10"/>
+                             
                             </ModelVisual3D.Content>
                         </ModelVisual3D>
-                        --><!--<ModelVisual3D x:Name="UIElement3DContainer">
-                            <local:Model3DControl />
-                            <ModelVisual3D.Transform>
-                                <Transform3DGroup >
-                                    <Transform3DGroup.Children>
-                                        <RotateTransform3D x:Name="myXTransform">
-                                            <RotateTransform3D.Rotation >
-                                                <AxisAngleRotation3D x:Name = "rotate3" Axis = "0 0 1"/>
-                                            </RotateTransform3D.Rotation>
-                                        </RotateTransform3D>
-                                        <RotateTransform3D x:Name="myYTransform">
-                                            <RotateTransform3D.Rotation >
-                                                <AxisAngleRotation3D x:Name = "rotate2" Axis = "0 1 0"/>
-                                            </RotateTransform3D.Rotation>
-                                        </RotateTransform3D>
-                                    </Transform3DGroup.Children>
-                                </Transform3DGroup>
-                            </ModelVisual3D.Transform>
-                        </ModelVisual3D>
-                            <ModelVisual3D Content = "{Binding myModelVisual3D}"/> --><!--
-                    </Viewport3D>-->
-
-                        
-                    <Viewport3D Name="viewport3D1" Margin="0,0,0,0.4">
-
-                        <Viewport3D.Camera>
-                            <PerspectiveCamera x:Name = "camMain" Position = "6 5 4" LookDirection = "-6 -5 -4">
-                            </PerspectiveCamera>
-                        </Viewport3D.Camera>
-
                         <ModelVisual3D>
                             <ModelVisual3D.Content>
-                                <DirectionalLight x:Name = "dirLightMain" Direction = "-1,-1,-1">
-                                </DirectionalLight>
+                                <DirectionalLight x:Name = "dirLightMain2" Direction = "1,1,1"/>
+
                             </ModelVisual3D.Content>
                         </ModelVisual3D>
 
                         <ModelVisual3D x:Name = "MyModel">
                             <ModelVisual3D.Content>
                                 <GeometryModel3D>
-                                    <!--Positions = "0 0 0  1 0 0  0 1 0  1 1 0  0 0 1  1 0 1  0 1 1  0 1 1  1 1 1"-->
                                     <GeometryModel3D.Geometry>
+                                        <!--0 0 0  1 0 0  0 0 1  0.5 0 1.5  1 0 1  -3 2 0  2 2 0  -3 2 1  2.5 2 4.5  2 2 2-->
+                                        <!--0 2 1                                                   
+                                                        2 3 1
+                                                        3 4 1
+                                                        
+                                                        0 5 2
+                                                        3 2 7
+                                                        0 1 5
+                                                        4 1 9
+                                                        3 4 8
+                                                        
+                                                        2 5 7
+                                                        3 7 8
+                                                        4 9 8
+                                                        1 6 9
+                                                        1 6 5-->
                                         <MeshGeometry3D x:Name = "meshMain"
-                                            Positions="0 0 0  1 0 0  0 1 0  1 1 0  0 0 1  1 0 1  0 1 1  0 1 1"
+                                            Positions="0 0 0  1 0 0  1 0 1  0 0 1  0 2 0  1 2 0  1 2 1  0 2 1"
                                             Normals="0 0 1  0 0 1  0 0 1  0 0 1"
                                             TextureCoordinates="0 1  1 1  0 0  1 0"
-                                            TriangleIndices="2, 3, 1, 2, 1, 0, 7, 1, 3, 7, 5, 1, 6, 5, 7, 6, 4, 5, 6, 2, 0, 2, 0, 4, 2, 7, 3, 2, 6, 7, 0, 1, 5, 0, 5, 4">
+                                            
+                                            TriangleIndices="
+                                                        0 1 5  
+                                                        5 1 0 
+                                                        
+                                                        1 2 6
+                                                        6 2 1
+                                                        
+                                                        2 3 7
+                                                        7 3 2
+                                                        
+                                                        3 0 4
+                                                        4 0 3
+                                                        
+                                                        
+                                                        
+                                                        0 5 4
+                                                        4 5 0
+                                                        
+                                                        1 6 5
+                                                        5 6 1
+                                                        
+                                                        2 7 6
+                                                        6 7 2
+                                                        
+                                                        3 4 7
+                                                        7 4 3
+                                                        "
+                                                        >
                                         </MeshGeometry3D>
                                     </GeometryModel3D.Geometry>
 
                                     <GeometryModel3D.Material>
                                         <DiffuseMaterial x:Name = "matDiffuseMain">
                                             <DiffuseMaterial.Brush>
-                                                <SolidColorBrush Color = "Bisque"/>
+                                                <SolidColorBrush Color = "Violet"/>
                                             </DiffuseMaterial.Brush>
                                         </DiffuseMaterial>
                                     </GeometryModel3D.Material>
-
                                 </GeometryModel3D>
                             </ModelVisual3D.Content>
 
@@ -114,40 +125,62 @@
                                     <Transform3DGroup.Children>
                                         <RotateTransform3D x:Name="myXTransform">
                                             <RotateTransform3D.Rotation >
-                                                <AxisAngleRotation3D x:Name = "rotate3" Axis = "0 0 1"/>
+                                                <AxisAngleRotation3D x:Name = "rotate" Axis = "0 1 0"/>
                                             </RotateTransform3D.Rotation>
                                         </RotateTransform3D>
                                         <RotateTransform3D x:Name="myYTransform">
                                             <RotateTransform3D.Rotation >
-                                                <AxisAngleRotation3D x:Name = "rotate2" Axis = "0 1 0"/>
+                                                <AxisAngleRotation3D x:Name = "rotate_1" Axis = "1 0 0"/>
                                             </RotateTransform3D.Rotation>
                                         </RotateTransform3D>
+                                        <ScaleTransform3D x:Name="scaler" CenterX="0" CenterY="0" CenterZ="0" />
+                                        <!--<ScaleTransform3D ScaleX="0.5" ScaleY="0.5" ScaleZ="0.5" CenterX="0" CenterY="0" CenterZ="0" />-->
                                     </Transform3DGroup.Children>
                                 </Transform3DGroup>
                             </ModelVisual3D.Transform>
 
                         </ModelVisual3D>
                     </Viewport3D>
-                    
-                    <Slider Height = "32" HorizontalAlignment = "Left"  
+                    <!--Value = "{Binding ElementName = rotate3, Path=Angle}"-->
+                    <Slider  
                         Margin = "137,367,0,0" Name = "slider1" 
-                        VerticalAlignment = "Top" Width = "641"  
                         Maximum = "360" 
-                        Value = "{Binding ElementName = rotate3, Path=Angle}" />
-                    <Slider Height = "32" HorizontalAlignment = "Left"  
-                        Margin = "610,151,-149,0" x:Name = "slider1_Copy" 
-                        VerticalAlignment = "Top" Width = "327"  
+                        
+                        HorizontalAlignment="Left" Width="641" Height="32" VerticalAlignment="Top" ValueChanged="Slider1_ValueChanged" />
+                    <!--Value = "{Binding Angle, ElementName=rotate2}"-->
+                    <Slider  
+                        Margin = "595,166,-164,204.4" x:Name = "slider1_Copy"  
                         Maximum = "360" 
-                        Value = "{Binding Angle, ElementName=rotate2}" RenderTransformOrigin="0.5,0.5" >
+                        RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="357" ValueChanged="Slider1_Copy_ValueChanged" >
                         <Slider.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
                                 <SkewTransform/>
-                                <RotateTransform Angle="269.672"/>
+                                <RotateTransform Angle="270"/>
                                 <TranslateTransform/>
                             </TransformGroup>
                         </Slider.RenderTransform>
                     </Slider>
+                    <Slider HorizontalAlignment="Left" Margin="-29,168,0,0" 
+                            VerticalAlignment="Top" Height="24" Width="354" 
+                            Maximum = "100"
+                            RenderTransformOrigin="0.5,0.5" Name="zoom" ValueChanged="Zoom_ValueChanged">
+
+                        <Slider.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="-90"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </Slider.RenderTransform>
+                    </Slider>
+                    <TextBox HorizontalAlignment="Left" Height="19" Margin="240,14,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="91" Name="zoomValue"/>
+                    <Label Content="Zoom Value : " HorizontalAlignment="Left" Height="34" Margin="153,10,0,0" VerticalAlignment="Top" Width="82"/>
+                    <TextBox HorizontalAlignment="Left" Height="19" Margin="659,14,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="91" x:Name="rotateZ"/>
+                    <Label Content="Rotate Z Value : " HorizontalAlignment="Left" Height="34" Margin="558,10,0,0" VerticalAlignment="Top" Width="96"/>
+                    <TextBox HorizontalAlignment="Left" Height="19" Margin="256,332,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="91" x:Name="rotateX"/>
+                    <Label Content="Rotate X Value : " HorizontalAlignment="Left" Height="34" Margin="153,328,0,0" VerticalAlignment="Top" Width="96"/>
                 </Grid>
             </TabItem>
             <TabItem Header="UAV">
