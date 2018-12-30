@@ -17,6 +17,7 @@ C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\bin\Debug\SciChart.Charting3D.xml
 C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\bin\Debug\SciChart.Core.xml
 C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\bin\Debug\SciChart.Data.xml
 C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\bin\Debug\SciChart.Drawing.xml
+C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\obj\Debug\WpfApp1.csprojAssemblyReference.cache
 C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\obj\Debug\MainWindow.g.cs
 C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\obj\Debug\App.g.cs
 C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\obj\Debug\WpfApp1_MarkupCompile.cache

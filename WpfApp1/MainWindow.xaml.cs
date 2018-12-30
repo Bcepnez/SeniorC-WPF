@@ -38,6 +38,9 @@ namespace WpfApp1
         AxisAngleRotation3D rotate3 = new AxisAngleRotation3D();
         ScaleTransform3D scale = new ScaleTransform3D();
         PerspectiveCamera myPCamera = new PerspectiveCamera();
+        Color ColorTest;
+        bool LightStatus;
+        double pointx = 0.0, pointy = 0.0, pointz = 0.0;
 
         List<double> h = new List<double>();
         List<double> aPh = new List<double>();
@@ -51,8 +54,19 @@ namespace WpfApp1
             zoomValue.IsReadOnly = true;
             rotateX.IsReadOnly = true;
             rotateZ.IsReadOnly = true;
-            //type.SelectedIndex = 2;
             type.IsEnabled = false;
+            Light.IsEnabled = false;
+
+            System.Drawing.KnownColor t = new System.Drawing.KnownColor();
+            foreach (System.Drawing.KnownColor kc in System.Enum.GetValues(t.GetType()))
+            {
+                System.Drawing.ColorConverter cc = new System.Drawing.ColorConverter();
+                System.Drawing.Color c = System.Drawing.Color.FromName(kc.ToString());
+
+                if (!c.IsSystemColor)
+                    cbColors.Items.Add(c);
+            }
+            //dirLightMain.Direction = new Vector3D(pointx,pointy,pointz);
         }
         private void Grid_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -141,6 +155,9 @@ namespace WpfApp1
                 }
                 triangleInDices();
                 MessageBox.Show("Load data from file completed!");
+                
+                Light.SelectedIndex = 0;
+                cbColors.SelectedIndex = 114;
                 type.SelectedIndex = 0;
                 type.IsEnabled = true;
                 sr.Close();
@@ -251,7 +268,7 @@ namespace WpfApp1
 
         private void Test(object sender, RoutedEventArgs e)
         {
-            render();
+            MessageBox.Show("No action perform Now!");
         }
 
         
@@ -294,7 +311,56 @@ namespace WpfApp1
                 ipList.Items.Add(IPHost.AddressList[i].ToString());
             }
             ipList.SelectedIndex=0;
+
         }
+
+        //private void CreateAltitudeMap()
+        //{
+        //    // Calculate the function's value over the area.
+        //    const int xwidth = 512;
+        //    const int zwidth = 512;
+        //    const double dx = (xmax - xmin) / xwidth;
+        //    const double dz = (zmax - zmin) / zwidth;
+        //    double[,] values = new double[xwidth, zwidth];
+        //    for (int ix = 0; ix < xwidth; ix++)
+        //    {
+        //        double x = xmin + ix * dx;
+        //        for (int iz = 0; iz < zwidth; iz++)
+        //        {
+        //            double z = zmin + iz * dz;
+        //            values[ix, iz] = F(x, z);
+        //        }
+        //    }
+
+        //    // Get the upper and lower bounds on the values.
+        //    var get_values =
+        //        from double value in values
+        //        select value;
+        //    double ymin = get_values.Min();
+        //    double ymax = get_values.Max();
+
+        //    // Make the BitmapPixelMaker.
+        //    BitmapPixelMaker bm_maker =
+        //        new BitmapPixelMaker(xwidth, zwidth);
+
+        //    // Set the pixel colors.
+        //    for (int ix = 0; ix < xwidth; ix++)
+        //    {
+        //        for (int iz = 0; iz < zwidth; iz++)
+        //        {
+        //            byte red, green, blue;
+        //            MapRainbowColor(values[ix, iz], ymin, ymax,
+        //                out red, out green, out blue);
+        //            bm_maker.SetPixel(ix, iz, red, green, blue, 255);
+        //        }
+        //    }
+
+        //    // Convert the BitmapPixelMaker into a WriteableBitmap.
+        //    WriteableBitmap wbitmap = bm_maker.MakeBitmap(96, 96);
+
+        //    // Save the bitmap into a file.
+        //    wbitmap.Save("Texture.png");
+        //}
 
         private void IpList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -367,21 +433,16 @@ namespace WpfApp1
             }
         }
 
+        private bool mode;
         private void render()
         {
             zoom.IsEnabled = true;
             slider1.IsEnabled = true;
             slider1_Copy.IsEnabled = true;
             //// Declare scene objects.
-            //Viewport3D myViewport3D1 = new Viewport3D();
             Model3DGroup myModel3DGroup = new Model3DGroup();
             GeometryModel3D myGeometryModel = new GeometryModel3D();
             ModelVisual3D myModelVisual3D = new ModelVisual3D();
-            // Defines the camera used to view the 3D object. In order to view the 3D object,
-            // the camera must be positioned and pointed such that the object is within view 
-            // of the camera.
-            //PerspectiveCamera myPCamera = new PerspectiveCamera();
-
             // Specify where in the 3D scene the camera is.
             myPCamera.Position = new Point3D(6, 5, 4);
 
@@ -403,33 +464,37 @@ namespace WpfApp1
             // Define the lights cast in the scene. Without light, the 3D object cannot 
             // be seen. Note: to illuminate an object from additional directions, create 
             // additional lights.
-            DirectionalLight myDirectionalLight = new DirectionalLight();
-            myDirectionalLight.Color = Colors.White;
-            myDirectionalLight.Direction = new Vector3D(-1, -1, -1);
-
-            myModel3DGroup.Children.Add(myDirectionalLight);
-
-            ////< ModelVisual3D >
-            ////                < ModelVisual3D.Content >
-            ////                    < DirectionalLight x: Name = "dirLightMain" Direction = "-1,-1,-1" >
-
-            ////                      </ DirectionalLight >
-
-            ////                  </ ModelVisual3D.Content >
-
-            ////              </ ModelVisual3D >
+            //DirectionalLight myDirectionalLight = new DirectionalLight();
+            //myDirectionalLight.Color = Colors.White;
+            //myDirectionalLight.Direction = new Vector3D(-200, -2, -200);
+            //dirLightMain = myDirectionalLight;
+            
+            if (LightStatus)
+            {
+                AmbientLight myDirectionalLight = new AmbientLight();
+                myDirectionalLight.Color = Colors.White;
+                myModel3DGroup.Children.Add(myDirectionalLight);
+            }
+            else 
+            {
+                DirectionalLight myDirectionalLight = new DirectionalLight();
+                myDirectionalLight.Color = Colors.White;
+                myDirectionalLight.Direction = new Vector3D(-1, -1, -1);
+                myModel3DGroup.Children.Add(myDirectionalLight);
+            }
+            
 
             //  // The geometry specifes the shape of the 3D plane. In this sample, a flat sheet 
             //  // is created.
             MeshGeometry3D myMeshGeometry3D = new MeshGeometry3D();
 
             //// Create a collection of normal vectors for the MeshGeometry3D.
-            Vector3DCollection myNormalCollection = new Vector3DCollection();
-            myNormalCollection.Add(new Vector3D(0, 0, 1));
-            myNormalCollection.Add(new Vector3D(0, 0, 1));
-            myNormalCollection.Add(new Vector3D(0, 0, 1));
-            myNormalCollection.Add(new Vector3D(0, 0, 1));
-            myMeshGeometry3D.Normals = myNormalCollection;
+            //Vector3DCollection myNormalCollection = new Vector3DCollection();
+            //myNormalCollection.Add(new Vector3D(0, 0, 1));
+            //myNormalCollection.Add(new Vector3D(0, 0, 1));
+            //myNormalCollection.Add(new Vector3D(0, 0, 1));
+            //myNormalCollection.Add(new Vector3D(0, 0, 1));
+            //myMeshGeometry3D.Normals = myNormalCollection;
 
             //// Create a collection of vertex positions for the MeshGeometry3D. 
             myMeshGeometry3D.Positions = positionPoint;
@@ -462,11 +527,21 @@ namespace WpfApp1
             //myGeometryModel.Material = myMaterial;
 
 
+            //DiffuseMaterial diffuseMaterial = new DiffuseMaterial();
+            //SolidColorBrush solidColor = new SolidColorBrush();
+            //solidColor.Color = Colors.Bisque;
+            //diffuseMaterial.Brush = solidColor;
+            //myGeometryModel.Material = diffuseMaterial;
+
             DiffuseMaterial diffuseMaterial = new DiffuseMaterial();
             SolidColorBrush solidColor = new SolidColorBrush();
-            solidColor.Color = Colors.Bisque;
+            //solidColor.Color = Colors.Red;
+            solidColor.Color = ColorTest;
             diffuseMaterial.Brush = solidColor;
             myGeometryModel.Material = diffuseMaterial;
+
+            //DiffuseMaterial surface_material = new DiffuseMaterial(Brushes.Orange);
+            //myGeometryModel.Material = surface_material;
 
             //// Add the geometry model to the model group.
             myModel3DGroup.Children.Add(myGeometryModel);
@@ -536,7 +611,8 @@ namespace WpfApp1
 
             DiffuseMaterial diffuseMaterial = new DiffuseMaterial();
             SolidColorBrush solidColor = new SolidColorBrush();
-            solidColor.Color = Colors.Red;
+            //solidColor.Color = Colors.Red;
+            solidColor.Color = ColorTest;
             diffuseMaterial.Brush = solidColor;
             myGeometryModel.Material = diffuseMaterial;
 
@@ -581,10 +657,14 @@ namespace WpfApp1
             if (Item == meshSelected)
             {
                 render();
+                Light.IsEnabled = true;
+                mode = true;
             }
             else if (Item == pointCloudSelected)
             {
                 CreatePointCloud(positionPoint);
+                Light.IsEnabled = false;
+                mode = false;
             }
             else if (Item == notSelected)
             {
@@ -594,7 +674,57 @@ namespace WpfApp1
                 zoomValue.IsReadOnly = true;
                 rotateX.IsReadOnly = true;
                 rotateZ.IsReadOnly = true;
+                Light.IsEnabled = false;
             }
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int select = Light.SelectedIndex;
+            if (select == 0)
+            {
+                LightStatus = true;
+            }
+            else if(select == 1)
+            {
+                LightStatus = false;
+            }
+            render();
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        
+        private void XSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            pointx = xSlide.Value*-1;
+            XValue.Text = xSlide.Value.ToString();
+            render();
+        }
+
+        private void cbColors_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            System.Drawing.Color color = (System.Drawing.Color)cbColors.SelectedItem;
+            ColorTest = System.Windows.Media.Color.FromRgb(color.R, color.G, color.B);
+            if (mode) render();
+            else CreatePointCloud(positionPoint);
+        }
+
+        private void YSlide_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            pointy = ySlide.Value*-1;
+            YValue.Text = ySlide.Value.ToString();
+            render();
+        }
+
+        private void ZSlide_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            pointz = zSlide.Value*-1;
+            ZValue.Text = zSlide.Value.ToString();
+            render();
         }
     }
 }
