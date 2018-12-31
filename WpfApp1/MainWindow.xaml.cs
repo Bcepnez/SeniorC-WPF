@@ -25,10 +25,9 @@ namespace WpfApp1
         List<double> coordinateX = new List<double>();
         List<double> coordinateY = new List<double>();
         List<double> coordinateZ = new List<double>();
-        List<double> distance = new List<double>();
-        List<double> angle = new List<double>();
         List<double> distances = new List<double>();
         List<double> angles = new List<double>();
+        List<double> heights = new List<double>();
 
         Point3DCollection positionPoint = new Point3DCollection();
         Int32Collection triangleIndice = new Int32Collection();
@@ -38,6 +37,7 @@ namespace WpfApp1
         AxisAngleRotation3D rotate3 = new AxisAngleRotation3D();
         ScaleTransform3D scale = new ScaleTransform3D();
         PerspectiveCamera myPCamera = new PerspectiveCamera();
+        int[] dataDetail = new int[30000];
         Color ColorTest;
         bool LightStatus;
         double pointx = 0.0, pointy = 0.0, pointz = 0.0;
@@ -56,7 +56,9 @@ namespace WpfApp1
             rotateZ.IsReadOnly = true;
             type.IsEnabled = false;
             Light.IsEnabled = false;
-
+            cbColors.IsEnabled = false;
+            showArea.AppendText("Welcome to Program");
+            showArea.IsReadOnly = true;
             System.Drawing.KnownColor t = new System.Drawing.KnownColor();
             foreach (System.Drawing.KnownColor kc in System.Enum.GetValues(t.GetType()))
             {
@@ -67,6 +69,14 @@ namespace WpfApp1
                     cbColors.Items.Add(c);
             }
             //dirLightMain.Direction = new Vector3D(pointx,pointy,pointz);
+        }
+        private void ColorBoxEnable()
+        {
+            cbColors.IsEnabled = true;
+        }
+        private void ColorBoxDisable()
+        {
+            cbColors.IsEnabled = false;
         }
         private void Grid_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -79,7 +89,11 @@ namespace WpfApp1
         }
         private bool checkLayer(double x)
         {
-            if (h.Count == 0) return true;
+
+            if (h.Count == 0)
+            {
+                return true;
+            }
             else
             {
                 for (int i = 0; i < h.Count; i++)
@@ -118,8 +132,6 @@ namespace WpfApp1
                 System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);
                 String data;
                 int count = 0;
-                List<double> heights = new List<double>();
-
                 while ((data = sr.ReadLine()) != null)
                 {
                     String[] token = data.Split(',');
@@ -128,10 +140,13 @@ namespace WpfApp1
                     heights.Add(Double.Parse(token[2]));
                     if (checkLayer(Double.Parse(token[2])))
                     {
+                        dataDetail[h.Count]=0;
                         h.Add(Double.Parse(token[2]));
+                        aPh.Clear();
                     }
                     if (checkAngle(Double.Parse(token[1])))
                     {
+                        dataDetail[h.Count-1]++;
                         aPh.Add(Double.Parse(token[1]));
                     }
                     showArea.AppendText(count +
@@ -155,11 +170,15 @@ namespace WpfApp1
                 }
                 triangleInDices();
                 MessageBox.Show("Load data from file completed!");
-                
+                //for (int i = 0; i < h.Count; i++)
+                //{
+                //    MessageBox.Show("Data per layer : "+dataDetail[i].ToString());
+                //}
                 Light.SelectedIndex = 0;
                 cbColors.SelectedIndex = 114;
                 type.SelectedIndex = 0;
                 type.IsEnabled = true;
+                ColorBoxEnable();
                 sr.Close();
             }
         }
@@ -675,6 +694,7 @@ namespace WpfApp1
                 rotateX.IsReadOnly = true;
                 rotateZ.IsReadOnly = true;
                 Light.IsEnabled = false;
+                ColorBoxDisable();
             }
         }
 
@@ -725,6 +745,13 @@ namespace WpfApp1
             pointz = zSlide.Value*-1;
             ZValue.Text = zSlide.Value.ToString();
             render();
+        }
+        private void redata()
+        {
+            for (int i = 0; i < distances.Count ; i++)
+            {
+
+            }
         }
     }
 }
