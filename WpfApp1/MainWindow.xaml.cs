@@ -24,7 +24,7 @@ namespace LiMESH
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window , INotifyPropertyChanged
     {
         static int meshSelected = 0;
         static int pointCloudSelected = 1;
@@ -52,6 +52,26 @@ namespace LiMESH
 
         List<double> h = new List<double>();
         List<double> aPh = new List<double>();
+
+        private BackgroundWorker _bgWorker = new BackgroundWorker();
+        private double _workerState;
+
+        public double WorkerState
+        {
+            get { return _workerState; }
+            set {
+                _workerState = value;
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs("workerState"));
+                }
+            }
+        }
+
+        #region INotifyPropertyChanged Member
+        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
+
         public MainWindow()
         {
             InitializeComponent();
@@ -77,6 +97,18 @@ namespace LiMESH
                     cbColors.Items.Add(c);
             }
 
+            DataContext = this;
+
+            _bgWorker.DoWork += (s, e) =>
+            {
+                for (double i = 0; i <= 100; i+=0.01)
+                {
+                    Thread.Sleep(10);
+                    WorkerState = i;
+                }
+                MessageBox.Show("Working Done!");
+            };
+            _bgWorker.RunWorkerAsync();
 
             //dirLightMain.Direction = new Vector3D(pointx,pointy,pointz);
         }
@@ -845,6 +877,7 @@ namespace LiMESH
 
         private ArrayList nSockets;
 
+
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             //textbox.AppendText(GetIP());
@@ -1132,6 +1165,11 @@ namespace LiMESH
         private void PgBar_ValueChanged(object sender, ProgressChangedEventArgs e)
         {
             pgBar.Value = e.ProgressPercentage;
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
         private void redata()

@@ -38,6 +38,7 @@
                 </MenuItem>
 
             </MenuItem>
+            <MenuItem Header="_Test" Click="MenuItem_Click"/>
 
         </Menu>
         <!--<eo:TabControl ShowCloseTabButton="True">-->
@@ -96,8 +97,8 @@
                         <!--<TextBox Name="ip" Height="26" TextWrapping="Wrap"  Margin="10,291,10,166.4" RenderTransformOrigin="0.5,0.5"/>-->
                         <TextBox Name="myIP" Height="26" TextWrapping="Wrap"  Margin="8,236,0,0" RenderTransformOrigin="0.5,0.5" IsReadOnly="True" HorizontalAlignment="Left" Width="142" VerticalAlignment="Top"/>
                         <ListBox Name="lbConnections" HorizontalAlignment="Left" Height="75" Margin="7,298,0,0" VerticalAlignment="Top" Width="142"/>
-                        <ProgressBar Name="pgBar" Minimum="0" Maximum="100" HorizontalAlignment="Left" Height="17" Margin="10,463,0,0" VerticalAlignment="Top" Width="139" />
-                        <TextBlock Text="{Binding ElementName=pgBar, Path=Value, StringFormat={}{0:0}%}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="42,464,0,0" Width="78" TextAlignment="Center"/>
+                        <ProgressBar Name="pgBar" Minimum="0" Maximum="100" HorizontalAlignment="Left" Height="17" Margin="10,463,0,0" VerticalAlignment="Top" Width="139" Value="{Binding WorkerState}"/>
+                        <TextBlock Text="{Binding ElementName=pgBar, Path=Value, StringFormat={}{0:0.00}%}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="42,464,0,0" Width="78" TextAlignment="Center"/>
 
 
                     </Grid>
@@ -155,7 +156,7 @@
                     </Grid>-->
 
                     <Grid>
-                        <Image Source="HartLogo.png" Name="bgIMG" Margin="0,0,5.2,78.8" IsEnabled="True"/>
+                        <Image Source="noey.png" Name="bgIMG" Margin="0,0,5.2,78.8" IsEnabled="True"/>
                         <Viewport3D Name="viewport3D1" Margin="0,0,5.2,-0.6">
                             <Viewport3D.Camera>
                                 <PerspectiveCamera x:Name = "camMain" Position = "10 5 4" LookDirection = "-10 -5 -4">
@@ -240,6 +241,7 @@
                             </ModelVisual3D>
                         </Viewport3D>
 
+                        
                         <Slider  x:Name = "slider1_Copy"  
                         Maximum = "360" 
                         RenderTransformOrigin="0.5,0.5" ValueChanged="Slider1_Copy_ValueChanged" Background="{x:Null}" Margin="529,200,-189.8,0" HorizontalAlignment="Left" Width="428" Height="32" VerticalAlignment="Top" >
