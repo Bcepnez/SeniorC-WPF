@@ -25,7 +25,7 @@ namespace LiMESH
         {
             InitializeComponent();
             dT.Tick += new EventHandler(dt_Tick);
-            dT.Interval = new TimeSpan(0,0,3);
+            dT.Interval = new TimeSpan(0,0,5);
             dT.Start();
         }
 

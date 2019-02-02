@@ -9,14 +9,11 @@
         WindowStartupLocation="CenterScreen"
         Title="Splash" Height="500" Width="450">
     <Window.Background>
-        <ImageBrush ImageSource="noey.jpg"/>
+        <ImageBrush ImageSource="test3.png"/>
     </Window.Background>
     <StackPanel VerticalAlignment="Center">
         <Image Source="HartLogo.ico" Height="200" Width="200"/>
-        <TextBlock FontSize="10" Foreground="White" TextAlignment="Center">Copyright ©  2019</TextBlock>
-        <TextBlock FontSize="15" Foreground="White" TextAlignment="Center">
-            This program has developed by <LineBreak/>Pongsakorn Lertpiriyasakulkit and Kridsada Rattanamalai<LineBreak/>
-            Computer Engineering, KMUTT.
-        </TextBlock>
+        <TextBlock FontSize="10" Foreground="Black" FontWeight="Bold" TextAlignment="Center">Copyright ©  2019</TextBlock>
+        <TextBlock FontSize="15" Foreground="LightSeaGreen" FontWeight="Medium" TextAlignment="Center" Margin="0,0,-0.4,0"><Run Text="This program has developed by"/><LineBreak/><Run Text="Pongsakorn Lertpiriyasakulkit and Kridsada Rattanamalai"/><LineBreak/><Run Text="Computer Engineering, KMUTT."/></TextBlock>
     </StackPanel>
 </Window>

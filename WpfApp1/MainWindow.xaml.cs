@@ -24,7 +24,7 @@ namespace LiMESH
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window , INotifyPropertyChanged
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         static int meshSelected = 0;
         static int pointCloudSelected = 1;
@@ -36,6 +36,7 @@ namespace LiMESH
         List<double> distances = new List<double>();
         List<double> angles = new List<double>();
         List<double> heights = new List<double>();
+        int presentPoint = 0;
 
         Point3DCollection positionPoint = new Point3DCollection();
         Int32Collection triangleIndice = new Int32Collection();
@@ -48,10 +49,19 @@ namespace LiMESH
         int[] dataDetail = new int[30000];
         Color ColorTest;
         bool LightStatus;
-        double pointx = 0.0, pointy = 0.0, pointz = 0.0;
+        //double pointx = 0.0, pointy = 0.0, pointz = 0.0;
 
         List<double> h = new List<double>();
         List<double> aPh = new List<double>();
+        List<int> n = new List<int>();
+
+        private void redata()
+        {
+            for (int i = 0; i < distances.Count; i++)
+            {
+
+            }
+        }
 
         private BackgroundWorker _bgWorker = new BackgroundWorker();
         private double _workerState;
@@ -59,7 +69,8 @@ namespace LiMESH
         public double WorkerState
         {
             get { return _workerState; }
-            set {
+            set
+            {
                 _workerState = value;
                 if (PropertyChanged != null)
                 {
@@ -101,17 +112,17 @@ namespace LiMESH
 
             _bgWorker.DoWork += (s, e) =>
             {
-                for (double i = 0; i <= 100; i+=0.01)
+                while (progress < 100)
                 {
                     Thread.Sleep(10);
-                    WorkerState = i;
+                    WorkerState = progress;
                 }
                 MessageBox.Show("Working Done!");
             };
             _bgWorker.RunWorkerAsync();
-
-            //dirLightMain.Direction = new Vector3D(pointx,pointy,pointz);
         }
+
+        double progress = 0;
         private void ColorBoxEnable()
         {
             cbColors.IsEnabled = true;
@@ -166,18 +177,9 @@ namespace LiMESH
 
         private void cal()
         {
-            //BackgroundWorker worker = new BackgroundWorker();
-            //worker.WorkerReportsProgress = true;
-            //worker.DoWork += worker_DoWork;
-            //worker.ProgressChanged += worker_ProgressChanged;
-
-            //worker.RunWorkerAsync();
-            
             int max = distances.Count;
             for (int i = 0; i < max; i++)
             {
-                //Thread.Sleep(100);
-                //pgBar.Value = ((i + 1) / max) * 100;
                 showArea.AppendText(i +
                         "\ndistances : " + distances.ElementAt(i) +
                         "\nangles : " + angles.ElementAt(i) +
@@ -185,18 +187,20 @@ namespace LiMESH
                         "\nCOX : " + distances.ElementAt(i) * (Math.Sin(toRadians(angles.ElementAt(i)))) +
                         "\nCOY : " + distances.ElementAt(i) * (Math.Cos(toRadians(angles.ElementAt(i)))) +
                         "\n");
-
-                sendata(distances.ElementAt(i) * (Math.Sin(toRadians(angles.ElementAt(i)))),
-                    distances.ElementAt(i) * (Math.Cos(toRadians(angles.ElementAt(i)))),
-                    heights.ElementAt(i) * 10,
-                    i
-                    );
                 point(distances.ElementAt(i) * (Math.Sin(toRadians(angles.ElementAt(i)))),
                     distances.ElementAt(i) * (Math.Cos(toRadians(angles.ElementAt(i)))),
                     heights.ElementAt(i) * 10
                     );
             }
-            //pgBar.IsIndeterminate = false;
+        }
+
+        private double check_distValid(double distance)
+        {
+            if (distance == 0)
+            {
+                distance = 10;
+            }
+            return distance;
         }
 
         private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
@@ -210,11 +214,10 @@ namespace LiMESH
                 System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);
                 String data;
                 int count = 0;
-                //pgBar.IsIndeterminate = true;
                 while ((data = sr.ReadLine()) != null)
                 {
                     String[] token = data.Split(',');
-                    distances.Add(Double.Parse(token[0]));
+                    distances.Add(check_distValid(Double.Parse(token[0])));
                     angles.Add(Double.Parse(token[1]));
                     heights.Add(Double.Parse(token[2]));
                     if (checkLayer(Double.Parse(token[2])))
@@ -228,29 +231,14 @@ namespace LiMESH
                         dataDetail[h.Count - 1]++;
                         aPh.Add(Double.Parse(token[1]));
                     }
-                    //showArea.AppendText(count +
-                    //    "\ndistances : " + distances.ElementAt(count) +
-                    //    "\nangles : " + angles.ElementAt(count) +
-                    //    "\nheights : " + heights.ElementAt(count) +
-                    //    "\nCOX : " + distances.ElementAt(count) * (Math.Sin(toRadians(angles.ElementAt(count)))) +
-                    //    "\nCOY : " + distances.ElementAt(count) * (Math.Cos(toRadians(angles.ElementAt(count)))) +
-                    //    "\n");
-
-                    //sendata(distances.ElementAt(count) * (Math.Sin(toRadians(angles.ElementAt(count)))),
-                    //    distances.ElementAt(count) * (Math.Cos(toRadians(angles.ElementAt(count)))),
-                    //    heights.ElementAt(count) * 10,
-                    //    count
-                    //    );
-                    //point(distances.ElementAt(count) * (Math.Sin(toRadians(angles.ElementAt(count)))),
-                    //    distances.ElementAt(count) * (Math.Cos(toRadians(angles.ElementAt(count)))),
-                    //    heights.ElementAt(count) * 10
-                    //    );
                     count++;
                 }
-                //pgBar.IsIndeterminate = false;
+                //for (int i=0;i<h.Count;i++)
+                //{
+                //    MessageBox.Show(dataDetail[i].ToString());
+                //}
                 MessageBox.Show("Load data from file completed!");
                 cal();
-                //pgBar.IsIndeterminate = false;
                 triangleInDices();
                 MessageBox.Show("Calculate data completed!");
                 Light.SelectedIndex = 0;
@@ -259,45 +247,109 @@ namespace LiMESH
                 type.IsEnabled = true;
                 ColorBoxEnable();
                 sr.Close();
-                
+
             }
         }
         private void triangleInDices()
         {
             int n = h.Count;
             int alpha = aPh.Count;
+            int state = 0;
+            int current = 0;
             for (int i = 0; i < n - 1; i++)
             {
                 int mul = i * alpha;
-                for (int j = 0; j < alpha; j++)
+                MessageBox.Show("data Detail : " + dataDetail[i].ToString()+ "\nPresent Point : " + presentPoint.ToString());
+                
+                if (dataDetail[i] <= dataDetail[i+1])
                 {
-                    int f = (j % alpha) + mul;
-                    int s = ((j + 1) % alpha) + mul;
-                    int t = ((j + 1) % alpha) + ((i + 1) * alpha);
-                    //System.out.println("Triangle in dice : " + f + " , " + s + " , " + t);
-                    triangleIndice.Add(f);
-                    triangleIndice.Add(s);
-                    triangleIndice.Add(t);
-                    triangleIndice.Add(t);
-                    triangleIndice.Add(s);
-                    triangleIndice.Add(f);
+                    //state += presentPoint;
+                    current = state + dataDetail[i];
+                    for (; state < (dataDetail[i] - 1+ presentPoint); state++)
+                    {
+                        show.AppendText("1::: " + state + " : " + current + " : " + (current - 1)+"\n");
+                        if (state + 1 != (dataDetail[i]+ presentPoint))
+                        {
+                            //System.out.println("2::: " + set[state] + " : " + set[state + 1] + " : " + set[(current)]);
+                            show.AppendText("2::: " + state + " : " + (state+1) + " : " + (current) + "\n");
+                        }
+                        current++;
+                    }
 
-                    int f1 = (j % alpha) + mul;
-                    int s1 = ((j + 1) % alpha) + ((i + 1) * alpha);
-                    int t1 = (j % alpha) + ((i + 1) * alpha);
-                    triangleIndice.Add(f1);
-                    triangleIndice.Add(s1);
-                    triangleIndice.Add(t1);
-                    triangleIndice.Add(t1);
-                    triangleIndice.Add(s1);
-                    triangleIndice.Add(f1);
+                    for (; current < (dataDetail[i + 1] + dataDetail[i]+ presentPoint); current++)
+                    {
+                        //System.out.println("3::: " + set[state] + " : " + set[(current)] + " : " + set[(current - 1)]);
+                        show.AppendText("3::: " + state + " : " + (current) + " : " + (current-1) + "\n");
+                    }
+                    //show.AppendText("4::: " + (dataDetail[i] - 1 + presentPoint) + " : " + (dataDetail[i] + presentPoint) + " : " + (current - 1) + "\n");
+                    //show.AppendText("4::: " + (dataDetail[i] - 1 + presentPoint) + " : " + presentPoint + " : " + (dataDetail[i] + presentPoint) + "\n");
+                    //state++;
+                    MessageBox.Show("Data n2 more than or equal to n!");
+                    if (dataDetail[i] == dataDetail[i + 1])
+                    { 
+                        MessageBox.Show("Data n2 equal to n!");
+                    }
                 }
+
+                else {
+                    current = dataDetail[i];
+                    for (; current < (dataDetail[i + 1] + dataDetail[i]); current++)
+                    {
+                        //System.out.println("1::: " + set[state] + " : " + set[(state + 1)] + " : " + set[(current)]);
+                        show.AppendText("1::: " + state + " : " + (state+1) + " : " + (current) + "\n");
+                        if (current + 1 < (dataDetail[i + 1] + dataDetail[i]))
+                        {
+                            //System.out.println("2::: " + set[(state + 1)] + " : " + set[(current + 1)] + " : " + set[(current)]);
+                            show.AppendText("2::: " + (state+1) + " : " + (current + 1) + " : " + (current) + "\n");
+                        }
+                        state++;
+                    }
+                    for (; state < n - 1; state++)
+                    {
+                        //System.out.println("3::: " + set[state] + " : " + set[(state + 1)] + " : " + set[(current - 1)]);
+                        show.AppendText("3::: " + state + " : " + (state + 1) + " : " + (current - 1) + "\n");
+                    }
+                    MessageBox.Show("Data n2 less than n!");
+                }
+                show.AppendText("4::: " + (dataDetail[i] - 1 + presentPoint) + " : " + (dataDetail[i] + presentPoint) + " : " + (current - 1) + "\n");
+                show.AppendText("4::: " + (dataDetail[i] - 1 + presentPoint) + " : " + presentPoint + " : " + (dataDetail[i] + presentPoint) + "\n");
+                show.AppendText("5::: -------------------------------------\n");
+                state++;
+                
+                    //for (int j = 0; j < alpha; j++)
+                    //{
+                    //    int f = (j % alpha) + mul;
+                    //    int s = ((j + 1) % alpha) + mul;
+                    //    int t = ((j + 1) % alpha) + ((i + 1) * alpha);
+                    //    //System.out.println("Triangle in dice : " + f + " , " + s + " , " + t);
+                    //    triangleIndice.Add(f);
+                    //    triangleIndice.Add(s);
+                    //    triangleIndice.Add(t);
+                    //    triangleIndice.Add(t);
+                    //    triangleIndice.Add(s);
+                    //    triangleIndice.Add(f);
+
+                    //    int f1 = (j % alpha) + mul;
+                    //    int s1 = ((j + 1) % alpha) + ((i + 1) * alpha);
+                    //    int t1 = (j % alpha) + ((i + 1) * alpha);
+                    //    triangleIndice.Add(f1);
+                    //    triangleIndice.Add(s1);
+                    //    triangleIndice.Add(t1);
+                    //    triangleIndice.Add(t1);
+                    //    triangleIndice.Add(s1);
+                    //    triangleIndice.Add(f1);
+                    //}
+                    presentPoint += dataDetail[i];
             }
         }
         private void point(double x, double y, double z)
         {
             //return (new Point3D(x, z, y));
             positionPoint.Add(new Point3D(x, z, y));
+
+            coordinateX.Add(x);
+            coordinateY.Add(y);
+            coordinateZ.Add(z);
         }
         private void sendata(double coX, double coY, double coZ, int counter)
         {
@@ -397,23 +449,6 @@ namespace LiMESH
             rotateZ.Text = slider1_Copy.Value.ToString();
         }
 
-        private void NewMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            //NewTabCommand = new ActionCommand(p => NewTab());
-            
-        }
-
-        public ICommand NewTabCommand { get; }
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //IPHostEntry IPHost = Dns.GetHostByName(Dns.GetHostName());
-            //for (int i = 0; i < IPHost.AddressList.Length; i++)
-            //{
-            //    ipList.Items.Add(IPHost.AddressList[i].ToString());
-            //}
-            //ipList.SelectedIndex = 0;
-
-        }
 
         //private void CreateAltitudeMap()
         //{
@@ -540,7 +575,7 @@ namespace LiMESH
             zoom.IsEnabled = true;
             slider1.IsEnabled = true;
             slider1_Copy.IsEnabled = true;
-            bgIMG.Visibility= Visibility.Hidden;
+            bgIMG.Visibility = Visibility.Hidden;
             //// Declare scene objects.
             Model3DGroup myModel3DGroup = new Model3DGroup();
             GeometryModel3D myGeometryModel = new GeometryModel3D();
@@ -579,10 +614,22 @@ namespace LiMESH
             }
             else
             {
-                DirectionalLight myDirectionalLight = new DirectionalLight();
-                myDirectionalLight.Color = Colors.White;
-                myDirectionalLight.Direction = new Vector3D(-1, -1, -1);
+                AmbientLight myDirectionalLight = new AmbientLight();
+                myDirectionalLight.Color = Color.FromRgb(66,66,66);
                 myModel3DGroup.Children.Add(myDirectionalLight);
+
+                DirectionalLight myDirectionalLight1 = new DirectionalLight();
+                myDirectionalLight1.Color = Color.FromRgb(44, 44, 44);
+                myDirectionalLight1.Direction = new Vector3D(0, -1, -1);
+                myModel3DGroup.Children.Add(myDirectionalLight1);
+
+                SpotLight spot = new SpotLight();
+                spot.Color = Color.FromRgb(66, 66, 66);
+                spot.Direction = new Vector3D(0, 0, -1);
+                spot.InnerConeAngle = 30;
+                spot.OuterConeAngle = 60;
+                spot.Position = new Point3D(0, 1, 30);
+                myModel3DGroup.Children.Add(spot);
             }
 
 
@@ -795,18 +842,6 @@ namespace LiMESH
             render();
         }
 
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void XSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            //pointx = xSlide.Value * -1;
-            //XValue.Text = xSlide.Value.ToString();
-            //render();
-        }
-
         private void cbColors_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             System.Drawing.Color color = (System.Drawing.Color)cbColors.SelectedItem;
@@ -814,17 +849,6 @@ namespace LiMESH
             if (mode) render();
             else CreatePointCloud(positionPoint);
         }
-
-        private void YSlide_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            //pointy = ySlide.Value * -1;
-            //YValue.Text = ySlide.Value.ToString();
-            //render();
-        }
-
-
-
-
 
         public void listenerThread()
         {
@@ -836,7 +860,7 @@ namespace LiMESH
                 if (handlerSocket.Connected)
                 {
                     //Control.CheckForIllegalCrossThreadCalls = false;
-                    
+
                     lbConnections.Items.Add(handlerSocket.RemoteEndPoint.ToString() + " connected.");
                     lock (this)
                     {
@@ -877,7 +901,6 @@ namespace LiMESH
 
         private ArrayList nSockets;
 
-
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             //textbox.AppendText(GetIP());
@@ -909,44 +932,7 @@ namespace LiMESH
             //    networkStream.Close();
 
             //}
-            ipGet();           
-        }
-
-        private void Server_DataReceive(object sender, Message e)
-        {
-
-        }
-
-        private void ConnectToServer()
-        {
-            //try
-            //{
-            //    //hostAddr = Dns.GetHostEntry(AddressBox.Text);
-            //    IPHostEntry IPHost = Dns.GetHostByName(Dns.GetHostName());
-            //    for (int i = 0; i < IPHost.AddressList.Length; i++)
-            //    {
-            //        ipList.Items.Add(IPHost.AddressList[i].ToString());
-            //    }
-            //    ipList.SelectedIndex = 0;
-            //    //Server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //    //Server.Connect(hostAddr.AddressList[0].ToString(), 5005);
-
-            //    //StateObject state = new StateObject();
-            //    //state.client = Server;
-
-            //    //Server.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
-            //    //StatusLabel.Text = "Connected To Server @ " + AddressBox.Text;
-
-            //}
-            //catch (Exception)
-            //{
-            //    //StatusLabel.Text = "Could Not Connect To " + AddressBox.Text;
-            //}
-        }
-
-        private void DisconnectFromServer()
-        {
-            //Server.Close();
+            ipGet();
         }
 
 
@@ -1047,7 +1033,7 @@ namespace LiMESH
         //    return null;
         //}
 
-            
+
 
         //Get MAC address
         //public string GetMacAddress(string ipAddress)
@@ -1150,35 +1136,89 @@ namespace LiMESH
             ////textbox.Text = ipAddr;
         }
 
-        private void ZSlide_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            //pointz = zSlide.Value * -1;
-            //ZValue.Text = zSlide.Value.ToString();
-            //render();
-        }
-
         private void export(object sender, RoutedEventArgs e)
         {
             export();
         }
 
-        private void PgBar_ValueChanged(object sender, ProgressChangedEventArgs e)
-        {
-            pgBar.Value = e.ProgressPercentage;
-        }
-
+        private BackgroundWorker worker = null;
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
+            //pgBar.Value = 0; //Initializing progress value to 0  
+            //if (worker == null)
+            //{
+            //    worker = new BackgroundWorker();
+            //    worker.DoWork += worker_DoWork;
+            //    worker.RunWorkerCompleted += worker_RunWorkerCompleted;
+            //    worker.ProgressChanged += worker_ProgressChanged;
+            //    worker.WorkerReportsProgress = true;
+            //    worker.WorkerSupportsCancellation = true;
+            //}
+            //if (worker.IsBusy != true)
+            //{
+            //    // Start the asynchronous operation.  
+            //    worker.RunWorkerAsync();
+            //}
+            richTextBox1.AppendText(Get_Data_From_FTP_Server_File());
 
         }
 
-        private void redata()
+        private String Get_Data_From_FTP_Server_File()
         {
-            for (int i = 0; i < distances.Count; i++)
-            {
+            //used to display data into rich text.box
+            String result = String.Empty;
 
+
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://speedtest.tele2.net/100KB.zip");
+            request.Method = WebRequestMethods.Ftp.DownloadFile;
+            //set up credentials. 
+            request.Credentials = new NetworkCredential("", "");
+            //initialize Ftp response.
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+            //open readers to read data from ftp 
+            Stream responsestream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(responsestream);
+            //read data from FTP
+            result = reader.ReadToEnd();
+            //save file locally on your pc
+            using (StreamWriter file = File.CreateText("states.txt"))
+            {
+                file.WriteLine(result);
+                file.Close();
+            }
+            //close readers. 
+            reader.Close();
+            response.Close();
+            //return data from file. 
+            return result;
+        }
+
+        private void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            pgBar.Value = e.ProgressPercentage;
+            //pgDes.Text = pgBar.Value.ToString();
+        }
+
+        private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            MessageBox.Show("Done!");
+            try
+            {
+                worker.CancelAsync();
+                worker = null;
+            }
+            catch { }
+        }
+
+        private void worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            for (int i = 0; i < 1000000; i++)
+            {
+                worker.ReportProgress((i / 1000000) * 100);
             }
         }
+
+        
 
         private void export()
         {
@@ -1242,116 +1282,50 @@ namespace LiMESH
 
         }
 
-        //public void ReceiveFile(string fileName)
-        //{
-        //    // Get the object used to communicate with the server.
-        //    FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://www.contoso.com/test.htm");
-        //    request.Method = WebRequestMethods.Ftp.DownloadFile;
 
-        //    // This example assumes the FTP site uses anonymous logon.
-        //    request.Credentials = new NetworkCredential("anonymous", "janeDoe@contoso.com");
+        public void Message(string data)
+        {
+            //listBox1.Items.Add(data);
+            richTextBox1.AppendText(data + "\n");
+        }
 
-        //    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                StreamReader sr = new StreamReader(textBox1.Text);
 
-        //    Stream responseStream = response.GetResponseStream();
-        //    StreamReader reader = new StreamReader(responseStream);
-        //    Console.WriteLine(reader.ReadToEnd());
+                TcpClient tcpClient = new TcpClient();
+                tcpClient.Connect(new IPEndPoint(IPAddress.Parse(ip.Text), 8085));
 
-        //    Console.WriteLine($"Download Complete, status {response.StatusDescription}");
+                byte[] buffer = new byte[1500];
+                long bytesSent = 0;
 
-        //    reader.Close();
-        //    response.Close();
-        //}
+                while (bytesSent < sr.BaseStream.Length)
+                {
+                    int bytesRead = sr.BaseStream.Read(buffer, 0, 1500);
+                    tcpClient.GetStream().Write(buffer, 0, bytesRead);
+                    Message(bytesRead + " bytes sent.");
 
-        //public void SendFile(string fileName)
-        //{
-        //    // Get the object used to communicate with the server.
-        //    FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://www.contoso.com/test.htm");
-        //    request.Method = WebRequestMethods.Ftp.UploadFile;
+                    bytesSent += bytesRead;
+                }
 
-        //    // This example assumes the FTP site uses anonymous logon.
-        //    request.Credentials = new NetworkCredential("anonymous", "janeDoe@contoso.com");
+                tcpClient.Close();
 
-        //    // Copy the contents of the file to the request stream.
-        //    byte[] fileContents;
-        //    using (StreamReader sourceStream = new StreamReader("testfile.txt"))
-        //    {
-        //        fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
-        //    }
+                Message("finished");
+                Console.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
-        //    request.ContentLength = fileContents.Length;
-
-        //    using (Stream requestStream = request.GetRequestStream())
-        //    {
-        //        requestStream.Write(fileContents, 0, fileContents.Length);
-        //    }
-
-        //    using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
-        //    {
-        //        Console.WriteLine($"Upload File Complete, status {response.StatusDescription}");
-        //    }
-        //}
-
-
-        //public void SendoFile(string fileName)
-        //{
-        //    try
-        //    {
-        //        string IpAddressString = ip.Text;
-        //        int portnumber = 21;
-        //        IPEndPoint ipEnd_client = new IPEndPoint(IPAddress.Parse(IpAddressString), portnumber);
-        //        Socket clientSock_client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
-
-        //        string filePath = "";
-
-        //        fileName = fileName.Replace("\\", "/");
-        //        Console.WriteLine(fileName);
-
-        //        while (fileName.IndexOf("/") > -1)
-        //        {
-        //            filePath += fileName.Substring(0, fileName.IndexOf("/") + 1);
-        //            fileName = fileName.Substring(fileName.IndexOf("/") + 1);
-        //        }
-
-        //        byte[] fileNameByte = Encoding.UTF8.GetBytes(fileName);
-        //        if (fileNameByte.Length > 5000 * 1024)
-        //        {
-        //            Console.WriteLine("File size is more than 5Mb, please try with small file.");
-        //            return;
-        //        }
-
-        //        Console.WriteLine("Buffering ...");
-        //        string fullPath = filePath + fileName;
-
-        //        byte[] fileData = File.ReadAllBytes(fullPath);
-        //        byte[] clientData = new byte[4 + fileNameByte.Length + fileData.Length];
-        //        byte[] fileNameLen = BitConverter.GetBytes(fileNameByte.Length);
-
-
-        //        fileNameLen.CopyTo(clientData, 0);
-        //        fileNameByte.CopyTo(clientData, 4);
-        //        fileData.CopyTo(clientData, 4 + fileNameByte.Length);
-
-        //        Console.WriteLine("Connection to server...");
-        //        clientSock_client.Connect(ipEnd_client);
-
-        //        Console.WriteLine("File sending...");
-        //        clientSock_client.Send(clientData, 0, clientData.Length, 0);
-
-        //        Console.WriteLine("Disconnecting...");
-        //        clientSock_client.Close();
-        //        Console.WriteLine("File [" + fullPath + "] transferred.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (ex.Message == "No connection could be made because the target machine actively refused it")
-        //            Console.WriteLine("File Sending fail. Because server not running.");
-        //        else
-        //            Console.WriteLine("File Sending fail. " + ex.Message);
-        //        return;
-        //    }
-        //    //connected = true;
-        //    return;
-        //}
+        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog op = new OpenFileDialog();
+            op.ShowDialog();
+            textBox1.Text = op.FileName;
+        }
     }
 }
