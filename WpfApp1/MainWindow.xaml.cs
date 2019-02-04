@@ -46,14 +46,14 @@ namespace LiMESH
         AxisAngleRotation3D rotate3 = new AxisAngleRotation3D();
         ScaleTransform3D scale = new ScaleTransform3D();
         PerspectiveCamera myPCamera = new PerspectiveCamera();
-        int[] dataDetail = new int[30000];
+        int[] dataDetail = new int[300000];
         Color ColorTest;
         bool LightStatus;
         //double pointx = 0.0, pointy = 0.0, pointz = 0.0;
 
         List<double> h = new List<double>();
         List<double> aPh = new List<double>();
-        List<int> n = new List<int>();
+        //List<int> n = new List<int>();
 
         private void redata()
         {
@@ -139,6 +139,19 @@ namespace LiMESH
         {
             showArea.Document.Blocks.Clear();
             showArea.Focus();
+            h.Clear();
+            aPh.Clear();
+            triangleIndice.Clear();
+            positionPoint.Clear();
+            distances.Clear();
+            angles.Clear();
+            heights.Clear();
+            coordinateX.Clear();
+            coordinateY.Clear();
+            coordinateZ.Clear();
+            Array.Clear(dataDetail,0,dataDetail.Length);
+            
+            presentPoint = 0;
         }
         private bool checkLayer(double x)
         {
@@ -177,16 +190,15 @@ namespace LiMESH
 
         private void cal()
         {
+            check_distValid();
             int max = distances.Count;
             for (int i = 0; i < max; i++)
             {
-                showArea.AppendText(i +
-                        "\ndistances : " + distances.ElementAt(i) +
+                showArea.AppendText("distances : " + distances.ElementAt(i) +
                         "\nangles : " + angles.ElementAt(i) +
                         "\nheights : " + heights.ElementAt(i) +
-                        "\nCOX : " + distances.ElementAt(i) * (Math.Sin(toRadians(angles.ElementAt(i)))) +
-                        "\nCOY : " + distances.ElementAt(i) * (Math.Cos(toRadians(angles.ElementAt(i)))) +
                         "\n");
+
                 point(distances.ElementAt(i) * (Math.Sin(toRadians(angles.ElementAt(i)))),
                     distances.ElementAt(i) * (Math.Cos(toRadians(angles.ElementAt(i)))),
                     heights.ElementAt(i) * 10
@@ -194,13 +206,34 @@ namespace LiMESH
             }
         }
 
-        private double check_distValid(double distance)
+        private void check_distValid()
         {
-            if (distance == 0)
+            int n = h.Count;
+            int currentPoint = 0;
+            for (int i = 0; i < n ; i++)
             {
-                distance = 10;
+                for(int j = 0; j < dataDetail[i]; j++)
+                {
+                    if (distances.ElementAt(currentPoint)==0)
+                    {
+                        double nextVal;
+                        int nextPoint = (currentPoint);
+                        do
+                        {
+                            nextPoint++;
+                        } while ((nextVal = distances.ElementAt(nextPoint % dataDetail[i])) == 0);
+                        if (j == 0)
+                        {
+                            distances[currentPoint] = (distances.ElementAt(dataDetail[i] - 1) + nextVal) / 2;
+                        }
+                        else 
+                        {
+                            distances[currentPoint] = (distances.ElementAt(currentPoint-1) + nextVal) / 2;
+                        }
+                    }
+                    currentPoint++;
+                }
             }
-            return distance;
         }
 
         private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
@@ -208,8 +241,10 @@ namespace LiMESH
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "UAV Data Files (*.csv)|*.csv|All files (*.*)|*.*";
             openFileDialog.FilterIndex = 1;
+
             if (openFileDialog.ShowDialog() == true)
             {
+                bgIMG.Visibility = Visibility.Visible;
                 cleardata();
                 System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);
                 String data;
@@ -217,7 +252,7 @@ namespace LiMESH
                 while ((data = sr.ReadLine()) != null)
                 {
                     String[] token = data.Split(',');
-                    distances.Add(check_distValid(Double.Parse(token[0])));
+                    distances.Add(Double.Parse(token[0]));
                     angles.Add(Double.Parse(token[1]));
                     heights.Add(Double.Parse(token[2]));
                     if (checkLayer(Double.Parse(token[2])))
@@ -233,61 +268,62 @@ namespace LiMESH
                     }
                     count++;
                 }
-                //for (int i=0;i<h.Count;i++)
-                //{
-                //    MessageBox.Show(dataDetail[i].ToString());
-                //}
-                MessageBox.Show("Load data from file completed!");
+                MessageBox.Show("Load data from file completed!\nProgram will calculate after ok!\nPlease wait for a while...");
                 cal();
                 triangleInDices();
-                MessageBox.Show("Calculate data completed!");
+                bgIMG.Visibility = Visibility.Hidden;
+                //MessageBox.Show(triangleIndice.Count.ToString());
+                MessageBox.Show("Calculate data completed!");                
                 Light.SelectedIndex = 0;
                 cbColors.SelectedIndex = 114;
-                type.SelectedIndex = 0;
+                type.SelectedIndex = 1;
                 type.IsEnabled = true;
                 ColorBoxEnable();
                 sr.Close();
-
             }
         }
         private void triangleInDices()
         {
             int n = h.Count;
-            int alpha = aPh.Count;
             int state = 0;
             int current = 0;
+            
             for (int i = 0; i < n - 1; i++)
             {
-                int mul = i * alpha;
-                MessageBox.Show("data Detail : " + dataDetail[i].ToString()+ "\nPresent Point : " + presentPoint.ToString());
-                
                 if (dataDetail[i] <= dataDetail[i+1])
                 {
-                    //state += presentPoint;
                     current = state + dataDetail[i];
                     for (; state < (dataDetail[i] - 1+ presentPoint); state++)
                     {
-                        show.AppendText("1::: " + state + " : " + current + " : " + (current - 1)+"\n");
+                        triangleIndice.Add(state);
+                        triangleIndice.Add(current);
+                        triangleIndice.Add((current - 1));
+                        
+                        triangleIndice.Add((current - 1));
+                        triangleIndice.Add(current);
+                        triangleIndice.Add(state);
                         if (state + 1 != (dataDetail[i]+ presentPoint))
                         {
-                            //System.out.println("2::: " + set[state] + " : " + set[state + 1] + " : " + set[(current)]);
-                            show.AppendText("2::: " + state + " : " + (state+1) + " : " + (current) + "\n");
+                            triangleIndice.Add(state);
+                            triangleIndice.Add(state + 1);
+                            triangleIndice.Add(current);
+
+                            triangleIndice.Add(current);
+                            triangleIndice.Add(state + 1);
+                            triangleIndice.Add(state);
                         }
                         current++;
                     }
 
                     for (; current < (dataDetail[i + 1] + dataDetail[i]+ presentPoint); current++)
                     {
-                        //System.out.println("3::: " + set[state] + " : " + set[(current)] + " : " + set[(current - 1)]);
-                        show.AppendText("3::: " + state + " : " + (current) + " : " + (current-1) + "\n");
-                    }
-                    //show.AppendText("4::: " + (dataDetail[i] - 1 + presentPoint) + " : " + (dataDetail[i] + presentPoint) + " : " + (current - 1) + "\n");
-                    //show.AppendText("4::: " + (dataDetail[i] - 1 + presentPoint) + " : " + presentPoint + " : " + (dataDetail[i] + presentPoint) + "\n");
-                    //state++;
-                    MessageBox.Show("Data n2 more than or equal to n!");
-                    if (dataDetail[i] == dataDetail[i + 1])
-                    { 
-                        MessageBox.Show("Data n2 equal to n!");
+                        triangleIndice.Add(state);
+                        triangleIndice.Add(current);
+                        triangleIndice.Add(current - 1);
+
+                        triangleIndice.Add(current - 1);
+                        triangleIndice.Add(current);
+                        triangleIndice.Add(state);
                     }
                 }
 
@@ -295,25 +331,53 @@ namespace LiMESH
                     current = dataDetail[i];
                     for (; current < (dataDetail[i + 1] + dataDetail[i]); current++)
                     {
-                        //System.out.println("1::: " + set[state] + " : " + set[(state + 1)] + " : " + set[(current)]);
-                        show.AppendText("1::: " + state + " : " + (state+1) + " : " + (current) + "\n");
+                        triangleIndice.Add(state);
+                        triangleIndice.Add(state + 1);
+                        triangleIndice.Add(current);
+
+                        triangleIndice.Add(current);
+                        triangleIndice.Add(state + 1);
+                        triangleIndice.Add(state);
                         if (current + 1 < (dataDetail[i + 1] + dataDetail[i]))
                         {
-                            //System.out.println("2::: " + set[(state + 1)] + " : " + set[(current + 1)] + " : " + set[(current)]);
-                            show.AppendText("2::: " + (state+1) + " : " + (current + 1) + " : " + (current) + "\n");
+                            triangleIndice.Add(state + 1);
+                            triangleIndice.Add(current + 1);
+                            triangleIndice.Add(current);
+
+                            triangleIndice.Add(current);
+                            triangleIndice.Add(current + 1);
+                            triangleIndice.Add(state + 1);
                         }
                         state++;
                     }
                     for (; state < n - 1; state++)
                     {
-                        //System.out.println("3::: " + set[state] + " : " + set[(state + 1)] + " : " + set[(current - 1)]);
-                        show.AppendText("3::: " + state + " : " + (state + 1) + " : " + (current - 1) + "\n");
+                        triangleIndice.Add(state);
+                        triangleIndice.Add(state + 1);
+                        triangleIndice.Add(current - 1);
+
+                        triangleIndice.Add(current - 1);
+                        triangleIndice.Add(state + 1);
+                        triangleIndice.Add(state);
                     }
-                    MessageBox.Show("Data n2 less than n!");
                 }
-                show.AppendText("4::: " + (dataDetail[i] - 1 + presentPoint) + " : " + (dataDetail[i] + presentPoint) + " : " + (current - 1) + "\n");
-                show.AppendText("4::: " + (dataDetail[i] - 1 + presentPoint) + " : " + presentPoint + " : " + (dataDetail[i] + presentPoint) + "\n");
-                show.AppendText("5::: -------------------------------------\n");
+                triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
+                triangleIndice.Add((dataDetail[i] + presentPoint));
+                triangleIndice.Add((current - 1));
+
+                triangleIndice.Add((current - 1));
+                triangleIndice.Add((dataDetail[i] + presentPoint));
+                triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
+                                
+
+                triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
+                triangleIndice.Add(presentPoint);
+                triangleIndice.Add((dataDetail[i] + presentPoint));
+
+                triangleIndice.Add((dataDetail[i] + presentPoint));
+                triangleIndice.Add(presentPoint);
+                triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
+
                 state++;
                 
                     //for (int j = 0; j < alpha; j++)
@@ -344,22 +408,17 @@ namespace LiMESH
         }
         private void point(double x, double y, double z)
         {
-            //return (new Point3D(x, z, y));
             positionPoint.Add(new Point3D(x, z, y));
 
             coordinateX.Add(x);
             coordinateY.Add(y);
             coordinateZ.Add(z);
         }
-        private void sendata(double coX, double coY, double coZ, int counter)
+        private void sendata(double coX, double coY, double coZ)
         {
             coordinateX.Add(coX);
             coordinateY.Add(coY);
             coordinateZ.Add(coZ);
-            //showArea2.AppendText(counter +
-            //    "\nX : " + coordinateX.ElementAt(counter) +
-            //    "\nY : " + coordinateY.ElementAt(counter) +
-            //    "\nZ : " + coordinateZ.ElementAt(counter) + "\n");
 
         }
         private double toRadians(double angleVal)

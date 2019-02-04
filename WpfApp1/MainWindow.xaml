@@ -210,6 +210,7 @@
 
                         <Slider Margin="-191,187,0,0" 
                             VerticalAlignment="Top" Height="32" 
+                                Value="100"
                             Maximum = "1000"
                             RenderTransformOrigin="0.493,0.508" Name="zoom" ValueChanged="Zoom_ValueChanged" Background="{x:Null}" ScrollViewer.CanContentScroll="True" HorizontalAlignment="Left" Width="415">
 
@@ -229,13 +230,13 @@
                             ValueChanged="Slider1_ValueChanged" Height="32" VerticalAlignment="Top" Background="{x:Null}" Margin="87,448,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="581" >
                         </Slider>
                         <Label Content="Rotate X" Height="24" Margin="333,419,348.2,0" VerticalAlignment="Top"/>
-                        <RichTextBox Name="show" HorizontalAlignment="Left" Height="308" Margin="99,83,0,0" VerticalAlignment="Top" Width="394">
+                        <!--<RichTextBox Name="show" HorizontalAlignment="Left" Height="308" Margin="99,83,0,0" VerticalAlignment="Top" Width="394">
                             <FlowDocument>
                                 <Paragraph>
                                     <Run/>
                                 </Paragraph>
                             </FlowDocument>
-                        </RichTextBox>
+                        </RichTextBox>-->
 
                     </Grid>
                 </DockPanel>
