@@ -18,6 +18,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Windows.Threading;
 
 namespace LiMESH
 {
@@ -79,6 +80,8 @@ namespace LiMESH
             }
         }
 
+        
+
         #region INotifyPropertyChanged Member
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
@@ -108,18 +111,21 @@ namespace LiMESH
                     cbColors.Items.Add(c);
             }
 
-            DataContext = this;
+            pgBar.Visibility = Visibility.Hidden;
+            //DataContext = this;
 
-            _bgWorker.DoWork += (s, e) =>
-            {
-                while (progress < 100)
-                {
-                    Thread.Sleep(10);
-                    WorkerState = progress;
-                }
-                MessageBox.Show("Working Done!");
-            };
-            _bgWorker.RunWorkerAsync();
+            //_bgWorker.DoWork += (s, e) =>
+            //{
+            //    while (progress < 100)
+            //    {
+            //        Thread.Sleep(10);
+            //        WorkerState = progress;
+            //    }
+            //    MessageBox.Show("Working Done!");
+            //};
+            //_bgWorker.RunWorkerAsync();
+
+
         }
 
         double progress = 0;
@@ -197,11 +203,11 @@ namespace LiMESH
                 showArea.AppendText("distances : " + distances.ElementAt(i) +
                         "\nangles : " + angles.ElementAt(i) +
                         "\nheights : " + heights.ElementAt(i) +
-                        "\n");
+                        "\n\n");
 
                 point(distances.ElementAt(i) * (Math.Sin(toRadians(angles.ElementAt(i)))),
                     distances.ElementAt(i) * (Math.Cos(toRadians(angles.ElementAt(i)))),
-                    heights.ElementAt(i) * 10
+                    heights.ElementAt(i) * 100
                     );
             }
         }
@@ -210,9 +216,12 @@ namespace LiMESH
         {
             int n = h.Count;
             int currentPoint = 0;
+            int lastPoint = 0;
             for (int i = 0; i < n ; i++)
             {
-                for(int j = 0; j < dataDetail[i]; j++)
+                if (i == 0) lastPoint = 0;
+                else lastPoint += dataDetail[i - 1];
+                for (int j = 0; j < dataDetail[i]; j++)
                 {
                     if (distances.ElementAt(currentPoint)==0)
                     {
@@ -222,9 +231,15 @@ namespace LiMESH
                         {
                             nextPoint++;
                         } while ((nextVal = distances.ElementAt(nextPoint % dataDetail[i])) == 0);
-                        if (j == 0)
+                        if (currentPoint == 0)
                         {
-                            distances[currentPoint] = (distances.ElementAt(dataDetail[i] - 1) + nextVal) / 2;
+                            double befVal;
+                            int befPoint=0;
+                            do
+                            {
+                                befPoint++;
+                            } while ((befVal = distances.ElementAt((dataDetail[i]-(befPoint)) +lastPoint)) == 0);
+                            distances[0] = (befVal + nextVal) / 2;
                         }
                         else 
                         {
@@ -236,6 +251,8 @@ namespace LiMESH
             }
         }
 
+        BackgroundWorker worker = new BackgroundWorker();
+
         private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -244,6 +261,7 @@ namespace LiMESH
 
             if (openFileDialog.ShowDialog() == true)
             {
+                
                 bgIMG.Visibility = Visibility.Visible;
                 cleardata();
                 System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);
@@ -269,12 +287,13 @@ namespace LiMESH
                     count++;
                 }
                 MessageBox.Show("Load data from file completed!\nProgram will calculate after ok!\nPlease wait for a while...");
+                
                 cal();
                 triangleInDices();
-                bgIMG.Visibility = Visibility.Hidden;
-                //MessageBox.Show(triangleIndice.Count.ToString());
-                MessageBox.Show("Calculate data completed!");                
-                Light.SelectedIndex = 0;
+
+                MessageBox.Show("Calculate data completed!");
+                pgBar.Visibility = Visibility.Hidden;
+                Light.SelectedIndex = 1;
                 cbColors.SelectedIndex = 114;
                 type.SelectedIndex = 1;
                 type.IsEnabled = true;
@@ -379,32 +398,11 @@ namespace LiMESH
                 triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
 
                 state++;
-                
-                    //for (int j = 0; j < alpha; j++)
-                    //{
-                    //    int f = (j % alpha) + mul;
-                    //    int s = ((j + 1) % alpha) + mul;
-                    //    int t = ((j + 1) % alpha) + ((i + 1) * alpha);
-                    //    //System.out.println("Triangle in dice : " + f + " , " + s + " , " + t);
-                    //    triangleIndice.Add(f);
-                    //    triangleIndice.Add(s);
-                    //    triangleIndice.Add(t);
-                    //    triangleIndice.Add(t);
-                    //    triangleIndice.Add(s);
-                    //    triangleIndice.Add(f);
-
-                    //    int f1 = (j % alpha) + mul;
-                    //    int s1 = ((j + 1) % alpha) + ((i + 1) * alpha);
-                    //    int t1 = (j % alpha) + ((i + 1) * alpha);
-                    //    triangleIndice.Add(f1);
-                    //    triangleIndice.Add(s1);
-                    //    triangleIndice.Add(t1);
-                    //    triangleIndice.Add(t1);
-                    //    triangleIndice.Add(s1);
-                    //    triangleIndice.Add(f1);
-                    //}
-                    presentPoint += dataDetail[i];
-            }
+                presentPoint += dataDetail[i];
+                //worker.ReportProgress(Convert.ToInt32(current / distances.Count) * 100);
+                //worker.RunWorkerAsync();
+        }
+            
         }
         private void point(double x, double y, double z)
         {
@@ -1200,7 +1198,6 @@ namespace LiMESH
             export();
         }
 
-        private BackgroundWorker worker = null;
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             //pgBar.Value = 0; //Initializing progress value to 0  
@@ -1218,7 +1215,10 @@ namespace LiMESH
             //    // Start the asynchronous operation.  
             //    worker.RunWorkerAsync();
             //}
-            richTextBox1.AppendText(Get_Data_From_FTP_Server_File());
+
+
+            //richTextBox1.AppendText(Get_Data_From_FTP_Server_File());
+            pgBar.Visibility = Visibility.Visible;
 
         }
 

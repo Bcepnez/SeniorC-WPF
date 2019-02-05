@@ -33,9 +33,9 @@
                 </MenuItem>
 
             </MenuItem>
-            <MenuItem Header="_Test" Click="MenuItem_Click"/>
-            <MenuItem Header="_FTP Stream" Click="MenuItem_Click_1" />
-            <MenuItem Header="_FTP Browse" Click="MenuItem_Click_2" />
+            <MenuItem Header="_Test" Click="MenuItem_Click" Visibility="Visible"/>
+            <MenuItem Header="_FTP Stream" Click="MenuItem_Click_1" Visibility="Hidden"/>
+            <MenuItem Header="_FTP Browse" Click="MenuItem_Click_2" Visibility="Hidden"/>
 
         </Menu>
         <TabControl Name="tab" SelectionChanged="TabControl_SelectionChanged" Margin="0,0.4,0,0.2" Width="auto">
@@ -81,17 +81,17 @@
                         <TextBox Name="myIP" Visibility="Hidden" Height="26" TextWrapping="Wrap"  Margin="8,236,0,0" RenderTransformOrigin="0.5,0.5" IsReadOnly="True" HorizontalAlignment="Left" Width="142" VerticalAlignment="Top"/>
                         <ListBox Name="lbConnections" Visibility="Hidden" HorizontalAlignment="Left" Height="75" Margin="7,298,0,0" VerticalAlignment="Top" Width="142"/>
                         <!--<ProgressBar Visibility="Visible" Name="pgBar" HorizontalAlignment="Left" Height="17" Margin="10,463,0,0" VerticalAlignment="Top" Width="139" Value="{Binding WorkerState}"/>-->
-                        <ProgressBar Visibility="Visible" x:Name="pgBar" HorizontalAlignment="Left" Height="17" Margin="10,463,0,0" VerticalAlignment="Top" Width="139" />
-                        <TextBlock Visibility="Visible" Text="{Binding ElementName=pgBar, Path=Value, StringFormat={}{0:0.00}%}" Name="pgDes" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="42,464,0,0" Width="78" TextAlignment="Center"/>
-                        <RichTextBox Name="richTextBox1" HorizontalAlignment="Left" Height="60" Margin="10,313,0,0" VerticalAlignment="Top" Width="139">
+                        <ProgressBar Visibility="Hidden" x:Name="pgBar" HorizontalAlignment="Left" Height="17" Margin="10,463,0,0" VerticalAlignment="Top" Width="139"  IsIndeterminate="True"/>
+                        <!--<TextBlock Visibility="Visible" Text="{Binding ElementName=pgBar, Path=Value, StringFormat={}{0:0.00}%}" Name="pgDes" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="42,464,0,0" Width="78" TextAlignment="Center"/>-->
+                        <RichTextBox Visibility="Hidden" Name="richTextBox1" HorizontalAlignment="Left" Height="60" Margin="10,313,0,0" VerticalAlignment="Top" Width="139">
                             <FlowDocument>
                                 <Paragraph>
                                     <Run />
                                 </Paragraph>
                             </FlowDocument>
                         </RichTextBox>
-                        <TextBox Name="textBox1" HorizontalAlignment="Left" Height="22" Margin="12,284,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="139"/>
-                        <TextBox Name="ip" HorizontalAlignment="Left" Height="20" Margin="12,242,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="138"/>
+                        <TextBox Visibility="Hidden" Name="textBox1" HorizontalAlignment="Left" Height="22" Margin="12,284,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="139"/>
+                        <TextBox Visibility="Hidden" Name="ip" HorizontalAlignment="Left" Height="20" Margin="12,242,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="138"/>
 
 
                     </Grid>
