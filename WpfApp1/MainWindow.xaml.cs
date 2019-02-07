@@ -35,6 +35,7 @@ namespace LiMESH
         List<double> coordinateY = new List<double>();
         List<double> coordinateZ = new List<double>();
         List<double> distances = new List<double>();
+        
         List<double> angles = new List<double>();
         List<double> heights = new List<double>();
         int presentPoint = 0;
@@ -52,17 +53,10 @@ namespace LiMESH
         bool LightStatus;
         //double pointx = 0.0, pointy = 0.0, pointz = 0.0;
 
-        List<double> h = new List<double>();
-        List<double> aPh = new List<double>();
+        
         //List<int> n = new List<int>();
 
-        private void redata()
-        {
-            for (int i = 0; i < distances.Count; i++)
-            {
-
-            }
-        }
+        
 
         private BackgroundWorker _bgWorker = new BackgroundWorker();
         private double _workerState;
@@ -128,7 +122,6 @@ namespace LiMESH
 
         }
 
-        double progress = 0;
         private void ColorBoxEnable()
         {
             cbColors.IsEnabled = true;
@@ -140,6 +133,10 @@ namespace LiMESH
         private void Grid_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             myPCamera.Position = new Point3D((myPCamera.Position.X - e.Delta / 360D), (myPCamera.Position.Y - e.Delta / 360D), (myPCamera.Position.Z - e.Delta / 360D));
+        }
+        private void Grid_MouseMove(object sender, MouseWheelEventArgs e)
+        {
+            camMain.Position = new Point3D((camMain.Position.X - e.Delta / 360D), (camMain.Position.Y - e.Delta / 360D), (camMain.Position.Z - e.Delta / 360D));
         }
         private void cleardata()
         {
@@ -161,11 +158,7 @@ namespace LiMESH
         }
         private bool checkLayer(double x)
         {
-
-            if (h.Count == 0)
-            {
-                return true;
-            }
+            if (h.Count == 0) return true;
             else
             {
                 for (int i = 0; i < h.Count; i++)
@@ -194,10 +187,11 @@ namespace LiMESH
             }
         }
 
+
         private void cal()
         {
-            check_distValid();
-            int max = distances.Count;
+            //check_distValid();
+            int max = distanceData.Count;
             for (int i = 0; i < max; i++)
             {
                 showArea.AppendText("distances : " + distances.ElementAt(i) +
@@ -212,6 +206,178 @@ namespace LiMESH
             }
         }
 
+        //private void redata()
+        //{
+        //    int n = h.Count;
+        //    int currentPoint = 0;
+        //    int lastPoint = 0;
+        //    int dataPerH = distanceData.Count / n;
+        //    for (int i = distanceData.Count-dataPerH-1; i < distanceData.Count; i++)
+        //    {
+        //        if (distanceData.ElementAt(i) <= 10)
+        //        {
+        //            double nextVal;
+        //            int nextPoint = (i);
+        //            do
+        //            {
+        //                nextPoint++;
+        //            } while ((nextVal = distanceData.ElementAt(nextPoint % dataPerH)+ distanceData.Count - dataPerH - 1) <= 10);
+        //            if (i == distanceData.Count - dataPerH - 1)
+        //            {
+        //                double befVal;
+        //                int befPoint = 0;
+        //                do
+        //                {
+        //                    befPoint--;
+        //                } while ((befVal = distanceData.ElementAt((dataPerH + befPoint)+ distanceData.Count - dataPerH - 1)) <= 10);
+        //                distanceData[distanceData.Count - dataPerH - 1] = (befVal + nextVal) / 2;
+        //            }
+        //            else
+        //            {
+        //                distanceData[i] = (distanceData.ElementAt(i - 1) + nextVal) / 2;
+        //            }
+        //        }
+        //        //currentPoint++;
+        //    }
+        //    currentPoint = 0;
+        //    for (int i = 0; i < h.Count-1; i++)
+        //    {
+        //        lastPoint += dataDetail[i - 1];
+        //        if (i == 0)
+        //        {
+        //            lastPoint = 0;
+        //            for (int j = 0; j < dataPerH; j++)
+        //            {
+        //                if (distanceData.ElementAt(currentPoint) <= 10)
+        //                {
+        //                    double nextVal;
+        //                    int nextPoint = (currentPoint);
+        //                    do
+        //                    {
+        //                        nextPoint++;
+        //                    } while ((nextVal = distanceData.ElementAt(nextPoint % dataPerH)) <= 10);
+        //                    if (currentPoint == 0)
+        //                    {
+        //                        double befVal;
+        //                        int befPoint = 0;
+        //                        do
+        //                        {
+        //                            befPoint--;
+        //                        } while ((befVal = distanceData.ElementAt((dataPerH + (befPoint)) + lastPoint)) <= 10);
+        //                        distanceData[0] = (befVal + nextVal) / 2;
+        //                    }
+        //                    else
+        //                    {
+        //                        distanceData[currentPoint] = (distanceData.ElementAt(currentPoint - 1) + nextVal) / 2;
+        //                    }
+        //                }
+        //                currentPoint++;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            for (int j = 0; j < dataPerH; j++)
+        //            {
+        //                if (distanceData.ElementAt(currentPoint) == 1)
+        //                {
+        //                    double nextVal;
+        //                    int nextPoint = 0;
+        //                    do
+        //                    {
+        //                        nextPoint++;
+        //                    } while ((nextVal = distanceData.ElementAt((nextPoint * dataPerH)+currentPoint)) <= 10);
+        //                    double befVal;
+        //                    int befPoint = 0;
+        //                    do
+        //                    {
+        //                        befPoint--;
+        //                    } while ((befVal = distanceData.ElementAt((befPoint * dataPerH) + currentPoint)) <= 10);
+        //                    distanceData[currentPoint] = (befVal + nextVal) / 2;
+        //                }
+        //                currentPoint++;
+        //            }
+        //        }
+
+        //    }
+        //}
+
+        private void datarestruct()
+        {
+            int ang = angleList.Count;
+            int n = angleData.Count / ang;
+            //MessageBox.Show("Data Layer : "+n);
+            for(int i = 0; i < ang; i++)
+            {
+                if (distanceData.ElementAt(i) <= 1)
+                {
+                    double nextVal;
+                    int nextPoint = (i);
+                    do
+                    {
+                        nextPoint++;
+                    } while ((nextVal = distanceData.ElementAt(nextPoint % ang) ) <= 10);
+                    if (i == 0)
+                    {
+                        double befVal;
+                        int befPoint = 0;
+                        do
+                        {
+                            befPoint--;
+                        } while ((befVal = distanceData.ElementAt((ang + befPoint))) <= 10);
+                        distanceData[0] = (befVal + nextVal) / 2;
+                    }
+                    else
+                    {
+                        distanceData[i] = (distanceData.ElementAt(i - 1) + nextVal) / 2;
+                    }
+                }
+            }
+            for (int i = (angleData.Count- ang - 1); i < angleData.Count; i++)
+            {
+                if (distanceData.ElementAt(i) <= 1)
+                {
+                    double nextVal;
+                    int nextPoint = (i);
+                    do
+                    {
+                        nextPoint++;
+                    } while ((nextVal = distanceData.ElementAt((nextPoint % ang) + distanceData.Count - ang - 1)) <= 10);
+                    if (i == distanceData.Count - ang - 1)
+                    {
+                        double befVal;
+                        int befPoint = 0;
+                        do
+                        {
+                            befPoint--;
+                        } while ((befVal = distanceData.ElementAt((ang + befPoint) + distanceData.Count - ang - 1)) <= 10);
+                        distanceData[distanceData.Count - ang - 1] = (befVal + nextVal) / 2;
+                    }
+                    else
+                    {
+                        distanceData[i] = (distanceData.ElementAt(i - 1) + nextVal) / 2;
+                    }
+                }
+            }
+            for (int i= 1; i < n - 1; i++)
+            {
+                for(int  p = 0; p < ang; p++)
+                {
+                    int currentpoint = (i * ang) + p;
+                    if (distanceData.ElementAt(currentpoint) == 1)
+                    {
+                        int upperpoint = ((i + 1) * ang) + p;
+                        int tmp = i;
+                        while (distanceData[upperpoint] <= 10)
+                        {
+                            tmp++;
+                            upperpoint = ((tmp + 1) * ang) + p;
+                        }
+                        int lowerpoint = ((i - 1) * ang) + p;
+                        distanceData[currentpoint] = (distanceData[upperpoint] + distanceData[lowerpoint]) / 2;
+                    }
+                }
+            }
+        }
         private void check_distValid()
         {
             int n = h.Count;
@@ -252,6 +418,13 @@ namespace LiMESH
         }
 
         BackgroundWorker worker = new BackgroundWorker();
+        List<double> h = new List<double>();
+        List<double> aPh = new List<double>();
+        List<double> angleList = new List<double>(); 
+        List<double> heightList = new List<double>();
+        List<double> distanceData = new List<double>();
+        List<double> angleData = new List<double>();
+        List<double> heightData = new List<double>();
 
         private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -266,7 +439,6 @@ namespace LiMESH
                 cleardata();
                 System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);
                 String data;
-                int count = 0;
                 while ((data = sr.ReadLine()) != null)
                 {
                     String[] token = data.Split(',');
@@ -281,17 +453,22 @@ namespace LiMESH
                     }
                     if (checkAngle(Double.Parse(token[1])))
                     {
-                        dataDetail[h.Count - 1]++;
+                        
                         aPh.Add(Double.Parse(token[1]));
                     }
-                    count++;
+                    dataDetail[h.Count - 1]=aPh.Count;
                 }
                 MessageBox.Show("Load data from file completed!\nProgram will calculate after ok!\nPlease wait for a while...");
-                
+
+                collect();
+                distances = distanceData;
+                angles = angleData;
+                heights = heightData;
+
                 cal();
                 triangleInDices();
 
-                MessageBox.Show("Calculate data completed!");
+                MessageBox.Show("Calculate data completed!"); 
                 pgBar.Visibility = Visibility.Hidden;
                 Light.SelectedIndex = 1;
                 cbColors.SelectedIndex = 114;
@@ -300,109 +477,186 @@ namespace LiMESH
                 ColorBoxEnable();
                 sr.Close();
             }
+        } 
+        private void collect()
+        {
+            angleList = angles.Distinct().ToList(); ;
+            angleList.Sort();
+            heightList = heights.Distinct().ToList();
+            heightList.Sort();
+            fill();
+            datarestruct();
+            showData(); 
+        }
+        private void showData()
+        {
+            for (int i = 0; i < (distanceData.Count); i++)
+            {
+                richTextBox1.AppendText(heightData.ElementAt(i) + ": No." + (i % angleList.Count) + ": Dis :" + distanceData.ElementAt(i) + ": Angle :" + angleData.ElementAt(i) + "\n");
+            }
+        }
+        private void fill()
+        {
+            int n = h.Count;
+            int ang = angleList.Count;
+            int total = n * ang;
+            for (int i = 0; i < total; i++)
+            {
+                distanceData.Add(1);
+                angleData.Add(angleList.ElementAt(i%ang));
+                heightData.Add(heightList.ElementAt(i / ang));
+            }
+            int Nheight = heightList.Count;
+            int check = distanceData.Count;
+            int totals= distances.Count;
+            int pos = 0;
+            for (int i = 0; i < totals; i++)
+            {
+                while (angles.ElementAt(i) != angleList.ElementAt(pos % angleList.Count))
+                {
+                    pos++;
+                }
+                distanceData[pos] = distances.ElementAt(i);
+            }
+            
         }
         private void triangleInDices()
         {
-            int n = h.Count;
-            int state = 0;
-            int current = 0;
-            
-            for (int i = 0; i < n - 1; i++)
+            //int n = h.Count;
+            //int state = 0;
+            //int current = 0;
+
+            //for (int i = 0; i < n -1; i++)
+            //{
+            //    if (dataDetail[i] <= dataDetail[i+1])
+            //    {
+            //        current = state + dataDetail[i];
+            //        for (; state < (dataDetail[i] - 1+ presentPoint); state++)
+            //        {
+            //            triangleIndice.Add(state);
+            //            triangleIndice.Add(current);
+            //            triangleIndice.Add((current - 1));
+
+            //            triangleIndice.Add((current - 1));
+            //            triangleIndice.Add(current);
+            //            triangleIndice.Add(state);
+            //            if (state + 1 != (dataDetail[i]+ presentPoint))
+            //            {
+            //                triangleIndice.Add(state);
+            //                triangleIndice.Add(state + 1);
+            //                triangleIndice.Add(current);
+
+            //                triangleIndice.Add(current);
+            //                triangleIndice.Add(state + 1);
+            //                triangleIndice.Add(state);
+            //            }
+            //            current++;
+            //        }
+
+            //        for (; current < (dataDetail[i + 1] + dataDetail[i]+ presentPoint); current++)
+            //        {
+            //            triangleIndice.Add(state);
+            //            triangleIndice.Add(current);
+            //            triangleIndice.Add(current - 1);
+
+            //            triangleIndice.Add(current - 1);
+            //            triangleIndice.Add(current);
+            //            triangleIndice.Add(state);
+            //        }
+            //    }
+
+            //    else {
+            //        current = dataDetail[i];
+            //        for (; current < (dataDetail[i + 1] + dataDetail[i]); current++)
+            //        {
+            //            triangleIndice.Add(state);
+            //            triangleIndice.Add(state + 1);
+            //            triangleIndice.Add(current);
+
+            //            triangleIndice.Add(current);
+            //            triangleIndice.Add(state + 1);
+            //            triangleIndice.Add(state);
+            //            if (current + 1 < (dataDetail[i + 1] + dataDetail[i]))
+            //            {
+            //                triangleIndice.Add(state + 1);
+            //                triangleIndice.Add(current + 1);
+            //                triangleIndice.Add(current);
+
+            //                triangleIndice.Add(current);
+            //                triangleIndice.Add(current + 1);
+            //                triangleIndice.Add(state + 1);
+            //            }
+            //            state++;
+            //        }
+            //        for (; state < n - 1; state++)
+            //        {
+            //            triangleIndice.Add(state);
+            //            triangleIndice.Add(state + 1);
+            //            triangleIndice.Add(current - 1);
+
+            //            triangleIndice.Add(current - 1);
+            //            triangleIndice.Add(state + 1);
+            //            triangleIndice.Add(state);
+            //        }
+            //    }
+            //    triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
+            //    triangleIndice.Add((dataDetail[i] + presentPoint));
+            //    triangleIndice.Add((current - 1));
+
+            //    triangleIndice.Add((current - 1));
+            //    triangleIndice.Add((dataDetail[i] + presentPoint));
+            //    triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
+
+
+            //    triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
+            //    triangleIndice.Add(presentPoint);
+            //    triangleIndice.Add((dataDetail[i] + presentPoint));
+
+            //    triangleIndice.Add((dataDetail[i] + presentPoint));
+            //    triangleIndice.Add(presentPoint);
+            //    triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
+
+            //    state++;
+            //    presentPoint += dataDetail[i];
+            //}
+
+            //Create Triangle in dice
+            int n = heightList.Count;
+            int angle = angleList.Count;
+            for(int i = 0; i < n - 1; i++)
             {
-                if (dataDetail[i] <= dataDetail[i+1])
+                int mul = (i * angle);
+                for (int j = 0; j < angle; j++)
                 {
-                    current = state + dataDetail[i];
-                    for (; state < (dataDetail[i] - 1+ presentPoint); state++)
-                    {
-                        triangleIndice.Add(state);
-                        triangleIndice.Add(current);
-                        triangleIndice.Add((current - 1));
-                        
-                        triangleIndice.Add((current - 1));
-                        triangleIndice.Add(current);
-                        triangleIndice.Add(state);
-                        if (state + 1 != (dataDetail[i]+ presentPoint))
-                        {
-                            triangleIndice.Add(state);
-                            triangleIndice.Add(state + 1);
-                            triangleIndice.Add(current);
+                    int f = (j % angle) + mul;
+                    int s = ((j + 1) % angle) + mul;
+                    int t = ((j + 1) % angle) + ((i + 1) * angle);
+                    //System.out.println("Triangle in dice : " + f + " , " + s + " , " + t);
+                    triangleIndice.Add(f);
+                    triangleIndice.Add(s);
+                    triangleIndice.Add(t);
+                    triangleIndice.Add(t);
+                    triangleIndice.Add(s);
+                    triangleIndice.Add(f);
 
-                            triangleIndice.Add(current);
-                            triangleIndice.Add(state + 1);
-                            triangleIndice.Add(state);
-                        }
-                        current++;
-                    }
+                    int f1 = (j % angle) + mul;
+                    int s1 = ((j + 1) % angle) + ((i + 1) * angle);
+                    int t1 = (j % angle) + ((i + 1) * angle);
 
-                    for (; current < (dataDetail[i + 1] + dataDetail[i]+ presentPoint); current++)
-                    {
-                        triangleIndice.Add(state);
-                        triangleIndice.Add(current);
-                        triangleIndice.Add(current - 1);
+                    triangleIndice.Add(f1);
+                    triangleIndice.Add(s1);
+                    triangleIndice.Add(t1);
+                    triangleIndice.Add(t1);
+                    triangleIndice.Add(s1);
+                    triangleIndice.Add(f1);
 
-                        triangleIndice.Add(current - 1);
-                        triangleIndice.Add(current);
-                        triangleIndice.Add(state);
-                    }
+                    //MessageBox.Show("Triangle In dices : " + current + " : " + upright + " : " + up);
+                    
                 }
+                
+            }
 
-                else {
-                    current = dataDetail[i];
-                    for (; current < (dataDetail[i + 1] + dataDetail[i]); current++)
-                    {
-                        triangleIndice.Add(state);
-                        triangleIndice.Add(state + 1);
-                        triangleIndice.Add(current);
 
-                        triangleIndice.Add(current);
-                        triangleIndice.Add(state + 1);
-                        triangleIndice.Add(state);
-                        if (current + 1 < (dataDetail[i + 1] + dataDetail[i]))
-                        {
-                            triangleIndice.Add(state + 1);
-                            triangleIndice.Add(current + 1);
-                            triangleIndice.Add(current);
-
-                            triangleIndice.Add(current);
-                            triangleIndice.Add(current + 1);
-                            triangleIndice.Add(state + 1);
-                        }
-                        state++;
-                    }
-                    for (; state < n - 1; state++)
-                    {
-                        triangleIndice.Add(state);
-                        triangleIndice.Add(state + 1);
-                        triangleIndice.Add(current - 1);
-
-                        triangleIndice.Add(current - 1);
-                        triangleIndice.Add(state + 1);
-                        triangleIndice.Add(state);
-                    }
-                }
-                triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
-                triangleIndice.Add((dataDetail[i] + presentPoint));
-                triangleIndice.Add((current - 1));
-
-                triangleIndice.Add((current - 1));
-                triangleIndice.Add((dataDetail[i] + presentPoint));
-                triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
-                                
-
-                triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
-                triangleIndice.Add(presentPoint);
-                triangleIndice.Add((dataDetail[i] + presentPoint));
-
-                triangleIndice.Add((dataDetail[i] + presentPoint));
-                triangleIndice.Add(presentPoint);
-                triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
-
-                state++;
-                presentPoint += dataDetail[i];
-                //worker.ReportProgress(Convert.ToInt32(current / distances.Count) * 100);
-                //worker.RunWorkerAsync();
-        }
-            
         }
         private void point(double x, double y, double z)
         {
@@ -1385,6 +1639,11 @@ namespace LiMESH
             OpenFileDialog op = new OpenFileDialog();
             op.ShowDialog();
             textBox1.Text = op.FileName;
+        }
+
+        private void Icon_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }

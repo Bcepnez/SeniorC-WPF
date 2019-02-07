@@ -11,6 +11,7 @@
         Icon="logoMax.ico"
         WindowStartupLocation="CenterScreen"
         MouseWheel="Grid_MouseWheel" ResizeMode="CanResizeWithGrip" Background="White"
+        
         >
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -83,7 +84,7 @@
                         <!--<ProgressBar Visibility="Visible" Name="pgBar" HorizontalAlignment="Left" Height="17" Margin="10,463,0,0" VerticalAlignment="Top" Width="139" Value="{Binding WorkerState}"/>-->
                         <ProgressBar Visibility="Hidden" x:Name="pgBar" HorizontalAlignment="Left" Height="17" Margin="10,463,0,0" VerticalAlignment="Top" Width="139"  IsIndeterminate="True"/>
                         <!--<TextBlock Visibility="Visible" Text="{Binding ElementName=pgBar, Path=Value, StringFormat={}{0:0.00}%}" Name="pgDes" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="42,464,0,0" Width="78" TextAlignment="Center"/>-->
-                        <RichTextBox Visibility="Hidden" Name="richTextBox1" HorizontalAlignment="Left" Height="60" Margin="10,313,0,0" VerticalAlignment="Top" Width="139">
+                        <RichTextBox Visibility="Visible" Name="richTextBox1" HorizontalAlignment="Left" Height="126" Margin="10,247,0,0" VerticalAlignment="Top" Width="139">
                             <FlowDocument>
                                 <Paragraph>
                                     <Run />
@@ -107,15 +108,17 @@
 
                             <!--<ModelVisual3D>
                                 <ModelVisual3D.Content>
-                                    --><!--<SpotLight x:Name="spotLight" Color="#666666" Direction="0 0 -1" InnerConeAngle="30" OuterConeAngle="60" Position="0 1 30" />-->
-                                    <!--<DirectionalLight x:Name = "dirLightMain" Direction = "-1,-1,-1"/>-->
-                                    <!--<Model3DGroup>
+                                    -->
+                            <!--<SpotLight x:Name="spotLight" Color="#666666" Direction="0 0 -1" InnerConeAngle="30" OuterConeAngle="60" Position="0 1 30" />-->
+                            <!--<DirectionalLight x:Name = "dirLightMain" Direction = "-1,-1,-1"/>-->
+                            <!--<Model3DGroup>
                                         <AmbientLight x:Name="ambientLight" Color="#666666"/>
                                         <DirectionalLight x:Name="directionalLight" Color="#444444" Direction="0 -1 -1">
                                         </DirectionalLight>
                                         <SpotLight x:Name="spotLight" Color="#666666" Direction="0 0 -1" InnerConeAngle="30" OuterConeAngle="60" Position="0 1 30" >
                                         </SpotLight>
-                                    </Model3DGroup>--><!--
+                                    </Model3DGroup>-->
+                            <!--
                                 </ModelVisual3D.Content>
                             </ModelVisual3D>-->
 
@@ -162,9 +165,9 @@
                                         <GeometryModel3D.Material>
                                             <DiffuseMaterial x:Name = "matDiffuseMain">
                                                 <DiffuseMaterial.Brush>
-                                                    
-                                <!--<ImageBrush ImageSource="Noey.jpg" />-->
-                                
+
+                                                    <!--<ImageBrush ImageSource="Noey.jpg" />-->
+
                                                     <SolidColorBrush Color = "Violet"/>
                                                 </DiffuseMaterial.Brush>
                                             </DiffuseMaterial>
