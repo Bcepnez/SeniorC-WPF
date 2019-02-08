@@ -92,8 +92,6 @@ namespace LiMESH
             type.IsEnabled = false;
             Light.IsEnabled = false;
             cbColors.IsEnabled = false;
-            showArea.AppendText("Welcome to Program");
-            showArea.IsReadOnly = true;
             System.Drawing.KnownColor t = new System.Drawing.KnownColor();
             foreach (System.Drawing.KnownColor kc in System.Enum.GetValues(t.GetType()))
             {
@@ -139,69 +137,29 @@ namespace LiMESH
         }
         private void cleardata()
         {
-            showArea.Document.Blocks.Clear();
-            showArea.Focus();
-            h.Clear();
-            aPh.Clear();
+            ShowareaList.Items.Clear();
             triangleIndice.Clear();
             positionPoint.Clear();
             distances.Clear();
+            angles.Clear();
+            heights.Clear();
+
             distanceData.Clear();
             angleData.Clear();
             heightData.Clear();
             angleList.Clear();
             heightList.Clear();
-            angles.Clear();
-            heights.Clear();
+            
             coordinateX.Clear();
             coordinateY.Clear();
             coordinateZ.Clear();
-            //Array.Clear(dataDetail,0,dataDetail.Length);
-            
-        }
-        private bool checkLayer(double x)
-        {
-            if (h.Count == 0) return true;
-            else
-            {
-                for (int i = 0; i < h.Count; i++)
-                {
-                    if (x == h.ElementAt(i))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
-        private bool checkAngle(double x)
-        {
-            if (aPh.Count == 0) return true;
-            else
-            {
-                for (int i = 0; i < aPh.Count; i++)
-                {
-                    if (x == aPh.ElementAt(i))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
-
+        }   
 
         private void cal()
         {
-            //check_distValid();
             int max = distanceData.Count;
             for (int i = 0; i < max; i++)
             {
-                showArea.AppendText("distances : " + distanceData.ElementAt(i) +
-                        "\nangles : " + angleData.ElementAt(i) +
-                        "\nheights : " + heightData.ElementAt(i) +
-                        "\n\n");
-
                 point(distanceData.ElementAt(i) * (Math.Sin(toRadians(angleData.ElementAt(i)))),
                     distanceData.ElementAt(i) * (Math.Cos(toRadians(angleData.ElementAt(i)))),
                     heightData.ElementAt(i) * 100
@@ -441,49 +399,8 @@ namespace LiMESH
                 }
             }
         }
-        private void check_distValid()
-        {
-            int n = h.Count;
-            int currentPoint = 0;
-            int ang = angleList.Count;
-            int lastPoint = 0;
-            for (int i = 0; i < n ; i++)
-            {
-                if (i == 0) lastPoint = 0;
-                else lastPoint += ang;
-                for (int j = 0; j < ang; j++)
-                {
-                    if (distanceData.ElementAt(currentPoint)==0)
-                    {
-                        double nextVal;
-                        int nextPoint = (currentPoint);
-                        do
-                        {
-                            nextPoint++;
-                        } while ((nextVal = distanceData.ElementAt(nextPoint % ang)) == 0);
-                        if (currentPoint == 0)
-                        {
-                            double befVal;
-                            int befPoint=0;
-                            do
-                            {
-                                befPoint++;
-                            } while ((befVal = distanceData.ElementAt((ang - (befPoint)) +lastPoint)) == 0);
-                            distanceData[0] = (befVal + nextVal) / 2;
-                        }
-                        else 
-                        {
-                            distanceData[currentPoint] = (distanceData.ElementAt(currentPoint-1) + nextVal) / 2;
-                        }
-                    }
-                    currentPoint++;
-                }
-            }
-        }
 
         BackgroundWorker worker = new BackgroundWorker();
-        List<double> h = new List<double>();
-        List<double> aPh = new List<double>();
         List<double> angleList = new List<double>(); 
         List<double> heightList = new List<double>();
         List<double> distanceData = new List<double>();
@@ -509,34 +426,19 @@ namespace LiMESH
                     distances.Add(Double.Parse(token[0]));
                     angles.Add(Double.Parse(token[1]));
                     heights.Add(Double.Parse(token[2]));
-                    if (checkLayer(Double.Parse(token[2])))
-                    {
-                        //dataDetail[h.Count] = 0;
-                        h.Add(Double.Parse(token[2]));
-                        aPh.Clear();
-                    }
-                    if (checkAngle(Double.Parse(token[1])))
-                    {
-                        
-                        aPh.Add(Double.Parse(token[1]));
-                    }
-                    //dataDetail[h.Count - 1]=aPh.Count;
                 }
-                MessageBox.Show("Load data from file completed!\nProgram will calculate after ok!\nPlease wait for a while...");
-
+                MessageBox.Show("Load data from file completed!\nPlease wait for a while...");
                 collect();
-                
-
                 cal();
                 triangleInDices();
-
                 MessageBox.Show("Calculate data completed!"); 
                 pgBar.Visibility = Visibility.Hidden;
                 Light.SelectedIndex = 1;
-                cbColors.SelectedIndex = 114;
+                cbColors.SelectedIndex = 72;
                 type.SelectedIndex = 1;
                 type.IsEnabled = true;
                 ColorBoxEnable();
+                bgIMG.Visibility = Visibility.Hidden;
                 sr.Close();
             }
         } 
@@ -554,12 +456,12 @@ namespace LiMESH
         {
             for (int i = 0; i < (distanceData.Count); i++)
             {
-                richTextBox1.AppendText(heightData.ElementAt(i) + ": No." + (i % angleList.Count) + ": Dis :" + distanceData.ElementAt(i) + ": Angle :" + angleData.ElementAt(i) + "\n");
+                ShowareaList.Items.Add("No." + ((i % angleList.Count)+1) + ": Dis :" + distanceData.ElementAt(i) + ": Angle :" + angleData.ElementAt(i)+": Height :"+ heightData.ElementAt(i));
             }
         }
         private void fill()
         {
-            int n = h.Count;
+            int n = heightList.Count;
             int ang = angleList.Count;
             int total = n * ang;
             for (int i = 0; i < total; i++)
@@ -568,9 +470,7 @@ namespace LiMESH
                 angleData.Add(angleList.ElementAt(i%ang));
                 heightData.Add(heightList.ElementAt(i / ang));
             }
-            int Nheight = heightList.Count;
-            int check = distanceData.Count;
-            int totals= distances.Count;
+            int totals = distances.Count;
             int pos = 0;
             for (int i = 0; i < totals; i++)
             {
@@ -580,108 +480,9 @@ namespace LiMESH
                 }
                 distanceData[pos] = distances.ElementAt(i);
             }
-            
         }
         private void triangleInDices()
         {
-            //int n = h.Count;
-            //int state = 0;
-            //int current = 0;
-
-            //for (int i = 0; i < n -1; i++)
-            //{
-            //    if (dataDetail[i] <= dataDetail[i+1])
-            //    {
-            //        current = state + dataDetail[i];
-            //        for (; state < (dataDetail[i] - 1+ presentPoint); state++)
-            //        {
-            //            triangleIndice.Add(state);
-            //            triangleIndice.Add(current);
-            //            triangleIndice.Add((current - 1));
-
-            //            triangleIndice.Add((current - 1));
-            //            triangleIndice.Add(current);
-            //            triangleIndice.Add(state);
-            //            if (state + 1 != (dataDetail[i]+ presentPoint))
-            //            {
-            //                triangleIndice.Add(state);
-            //                triangleIndice.Add(state + 1);
-            //                triangleIndice.Add(current);
-
-            //                triangleIndice.Add(current);
-            //                triangleIndice.Add(state + 1);
-            //                triangleIndice.Add(state);
-            //            }
-            //            current++;
-            //        }
-
-            //        for (; current < (dataDetail[i + 1] + dataDetail[i]+ presentPoint); current++)
-            //        {
-            //            triangleIndice.Add(state);
-            //            triangleIndice.Add(current);
-            //            triangleIndice.Add(current - 1);
-
-            //            triangleIndice.Add(current - 1);
-            //            triangleIndice.Add(current);
-            //            triangleIndice.Add(state);
-            //        }
-            //    }
-
-            //    else {
-            //        current = dataDetail[i];
-            //        for (; current < (dataDetail[i + 1] + dataDetail[i]); current++)
-            //        {
-            //            triangleIndice.Add(state);
-            //            triangleIndice.Add(state + 1);
-            //            triangleIndice.Add(current);
-
-            //            triangleIndice.Add(current);
-            //            triangleIndice.Add(state + 1);
-            //            triangleIndice.Add(state);
-            //            if (current + 1 < (dataDetail[i + 1] + dataDetail[i]))
-            //            {
-            //                triangleIndice.Add(state + 1);
-            //                triangleIndice.Add(current + 1);
-            //                triangleIndice.Add(current);
-
-            //                triangleIndice.Add(current);
-            //                triangleIndice.Add(current + 1);
-            //                triangleIndice.Add(state + 1);
-            //            }
-            //            state++;
-            //        }
-            //        for (; state < n - 1; state++)
-            //        {
-            //            triangleIndice.Add(state);
-            //            triangleIndice.Add(state + 1);
-            //            triangleIndice.Add(current - 1);
-
-            //            triangleIndice.Add(current - 1);
-            //            triangleIndice.Add(state + 1);
-            //            triangleIndice.Add(state);
-            //        }
-            //    }
-            //    triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
-            //    triangleIndice.Add((dataDetail[i] + presentPoint));
-            //    triangleIndice.Add((current - 1));
-
-            //    triangleIndice.Add((current - 1));
-            //    triangleIndice.Add((dataDetail[i] + presentPoint));
-            //    triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
-
-
-            //    triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
-            //    triangleIndice.Add(presentPoint);
-            //    triangleIndice.Add((dataDetail[i] + presentPoint));
-
-            //    triangleIndice.Add((dataDetail[i] + presentPoint));
-            //    triangleIndice.Add(presentPoint);
-            //    triangleIndice.Add((dataDetail[i] - 1 + presentPoint));
-
-            //    state++;
-            //    presentPoint += dataDetail[i];
-            //}
-
             //Create Triangle in dice
             int n = heightList.Count;
             int angle = angleList.Count;
@@ -693,35 +494,24 @@ namespace LiMESH
                     int f = (j % angle) + mul;
                     int s = ((j + 1) % angle) + mul;
                     int t = ((j + 1) % angle) + ((i + 1) * angle);
-
-
-                    
-                    //System.out.println("Triangle in dice : " + f + " , " + s + " , " + t);
                     triangleIndice.Add(f);
                     triangleIndice.Add(s);
                     triangleIndice.Add(t);
                     triangleIndice.Add(t);
                     triangleIndice.Add(s);
                     triangleIndice.Add(f);
-                    //lb.Items.Add(":: Data : " + f + " : " + s + " : " + t + " ::");
+
                     int f1 = (j % angle) + mul;
                     int s1 = ((j + 1) % angle) + ((i + 1) * angle);
                     int t1 = (j % angle) + ((i + 1) * angle);
-                    //lb1.Items.Add(":: Data : " + f1 + " : " + s1 + " : " + t1 + " ::");
                     triangleIndice.Add(f1);
                     triangleIndice.Add(s1);
                     triangleIndice.Add(t1);
                     triangleIndice.Add(t1);
                     triangleIndice.Add(s1);
                     triangleIndice.Add(f1);
-
-                    //MessageBox.Show("Triangle In dices : " + current + " : " + upright + " : " + up);
-                    
                 }
-                
             }
-            MessageBox.Show("Triangle In dices : " + distanceData.Count);
-
         }
         private void point(double x, double y, double z)
         {
@@ -736,7 +526,6 @@ namespace LiMESH
             coordinateX.Add(coX);
             coordinateY.Add(coY);
             coordinateZ.Add(coZ);
-
         }
         private double toRadians(double angleVal)
         {
@@ -749,8 +538,7 @@ namespace LiMESH
 
         private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            string richText = new TextRange(showArea.Document.ContentStart, showArea.Document.ContentEnd).Text;
-            if (richText != "")
+            if (ShowareaList.Items.Count!=0)
             {
                 SaveFileDialog saveFileDialogUAV = new SaveFileDialog();
                 saveFileDialogUAV.InitialDirectory = @"C:\";
@@ -825,55 +613,6 @@ namespace LiMESH
             rotate3.Angle = slider1_Copy.Value;
             rotateZ.Text = slider1_Copy.Value.ToString();
         }
-
-
-        //private void CreateAltitudeMap()
-        //{
-        //    // Calculate the function's value over the area.
-        //    const int xwidth = 512;
-        //    const int zwidth = 512;
-        //    const double dx = (xmax - xmin) / xwidth;
-        //    const double dz = (zmax - zmin) / zwidth;
-        //    double[,] values = new double[xwidth, zwidth];
-        //    for (int ix = 0; ix < xwidth; ix++)
-        //    {
-        //        double x = xmin + ix * dx;
-        //        for (int iz = 0; iz < zwidth; iz++)
-        //        {
-        //            double z = zmin + iz * dz;
-        //            values[ix, iz] = F(x, z);
-        //        }
-        //    }
-
-        //    // Get the upper and lower bounds on the values.
-        //    var get_values =
-        //        from double value in values
-        //        select value;
-        //    double ymin = get_values.Min();
-        //    double ymax = get_values.Max();
-
-        //    // Make the BitmapPixelMaker.
-        //    BitmapPixelMaker bm_maker =
-        //        new BitmapPixelMaker(xwidth, zwidth);
-
-        //    // Set the pixel colors.
-        //    for (int ix = 0; ix < xwidth; ix++)
-        //    {
-        //        for (int iz = 0; iz < zwidth; iz++)
-        //        {
-        //            byte red, green, blue;
-        //            MapRainbowColor(values[ix, iz], ymin, ymax,
-        //                out red, out green, out blue);
-        //            bm_maker.SetPixel(ix, iz, red, green, blue, 255);
-        //        }
-        //    }
-
-        //    // Convert the BitmapPixelMaker into a WriteableBitmap.
-        //    WriteableBitmap wbitmap = bm_maker.MakeBitmap(96, 96);
-
-        //    // Save the bitmap into a file.
-        //    wbitmap.Save("Texture.png");
-        //}
 
         private void IpList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -1312,7 +1051,6 @@ namespace LiMESH
             ipGet();
         }
 
-
         //public void Ping_all()
         //{
 
@@ -1538,7 +1276,7 @@ namespace LiMESH
 
 
             //richTextBox1.AppendText(Get_Data_From_FTP_Server_File());
-            pgBar.Visibility = Visibility.Visible;
+            
             lb.Visibility = Visibility.Hidden;
             lb1.Visibility = Visibility.Hidden;
         }
@@ -1576,7 +1314,6 @@ namespace LiMESH
         private void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             pgBar.Value = e.ProgressPercentage;
-            //pgDes.Text = pgBar.Value.ToString();
         }
 
         private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -1666,7 +1403,7 @@ namespace LiMESH
         public void Message(string data)
         {
             //listBox1.Items.Add(data);
-            richTextBox1.AppendText(data + "\n");
+            //richTextBox1.AppendText(data + "\n");
         }
 
         private void MenuItem_Click_1(object sender, RoutedEventArgs e)
