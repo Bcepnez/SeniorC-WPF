@@ -34,7 +34,7 @@
                 </MenuItem>
 
             </MenuItem>
-            <MenuItem Header="_Test" Click="MenuItem_Click" Visibility="Visible"/>
+            <MenuItem Header="_Test" Click="MenuItem_Click" Visibility="Hidden"/>
             <MenuItem Header="_FTP Stream" Click="MenuItem_Click_1" Visibility="Hidden"/>
             <MenuItem Header="_FTP Browse" Click="MenuItem_Click_2" Visibility="Hidden"/>
 
@@ -233,6 +233,8 @@
                             ValueChanged="Slider1_ValueChanged" Height="32" VerticalAlignment="Top" Background="{x:Null}" Margin="87,448,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="581" >
                         </Slider>
                         <Label Content="Rotate X" Height="24" Margin="333,419,348.2,0" VerticalAlignment="Top"/>
+                        <ListBox Name="lb" Visibility="Hidden" HorizontalAlignment="Left" Height="365" Margin="42,25,0,0" VerticalAlignment="Top" Width="344"/>
+                        <ListBox Name="lb1" Visibility="Hidden" HorizontalAlignment="Left" Height="365" Margin="391,25,0,0" VerticalAlignment="Top" Width="344"/>
                         <!--<RichTextBox Name="show" HorizontalAlignment="Left" Height="308" Margin="99,83,0,0" VerticalAlignment="Top" Width="394">
                             <FlowDocument>
                                 <Paragraph>

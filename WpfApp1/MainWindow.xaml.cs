@@ -38,7 +38,6 @@ namespace LiMESH
         
         List<double> angles = new List<double>();
         List<double> heights = new List<double>();
-        int presentPoint = 0;
 
         Point3DCollection positionPoint = new Point3DCollection();
         Int32Collection triangleIndice = new Int32Collection();
@@ -48,7 +47,7 @@ namespace LiMESH
         AxisAngleRotation3D rotate3 = new AxisAngleRotation3D();
         ScaleTransform3D scale = new ScaleTransform3D();
         PerspectiveCamera myPCamera = new PerspectiveCamera();
-        int[] dataDetail = new int[300000];
+        //int[] dataDetail = new int[300000];
         Color ColorTest;
         bool LightStatus;
         //double pointx = 0.0, pointy = 0.0, pointz = 0.0;
@@ -147,14 +146,18 @@ namespace LiMESH
             triangleIndice.Clear();
             positionPoint.Clear();
             distances.Clear();
+            distanceData.Clear();
+            angleData.Clear();
+            heightData.Clear();
+            angleList.Clear();
+            heightList.Clear();
             angles.Clear();
             heights.Clear();
             coordinateX.Clear();
             coordinateY.Clear();
             coordinateZ.Clear();
-            Array.Clear(dataDetail,0,dataDetail.Length);
+            //Array.Clear(dataDetail,0,dataDetail.Length);
             
-            presentPoint = 0;
         }
         private bool checkLayer(double x)
         {
@@ -194,14 +197,14 @@ namespace LiMESH
             int max = distanceData.Count;
             for (int i = 0; i < max; i++)
             {
-                showArea.AppendText("distances : " + distances.ElementAt(i) +
-                        "\nangles : " + angles.ElementAt(i) +
-                        "\nheights : " + heights.ElementAt(i) +
+                showArea.AppendText("distances : " + distanceData.ElementAt(i) +
+                        "\nangles : " + angleData.ElementAt(i) +
+                        "\nheights : " + heightData.ElementAt(i) +
                         "\n\n");
 
-                point(distances.ElementAt(i) * (Math.Sin(toRadians(angles.ElementAt(i)))),
-                    distances.ElementAt(i) * (Math.Cos(toRadians(angles.ElementAt(i)))),
-                    heights.ElementAt(i) * 100
+                point(distanceData.ElementAt(i) * (Math.Sin(toRadians(angleData.ElementAt(i)))),
+                    distanceData.ElementAt(i) * (Math.Cos(toRadians(angleData.ElementAt(i)))),
+                    heightData.ElementAt(i) * 100
                     );
             }
         }
@@ -306,75 +309,135 @@ namespace LiMESH
             int ang = angleList.Count;
             int n = angleData.Count / ang;
             //MessageBox.Show("Data Layer : "+n);
-            for(int i = 0; i < ang; i++)
+            //for(int i = 0; i < ang; i++)
+            //{
+            //    if (distanceData.ElementAt(i) <= 1)
+            //    {
+            //        double nextVal;
+            //        int nextPoint = (i);
+            //        do
+            //        {
+            //            nextPoint++;
+            //        } while ((nextVal = distanceData.ElementAt(nextPoint % ang) ) <= 10);
+            //        if (i == 0)
+            //        {
+            //            double befVal;
+            //            int befPoint = 0;
+            //            do
+            //            {
+            //                befPoint--;
+            //            } while ((befVal = distanceData.ElementAt((ang + befPoint))) <= 10);
+            //            distanceData[0] = (befVal + nextVal) / 2;
+            //        }
+            //        else
+            //        {
+            //            distanceData[i] = (distanceData.ElementAt(i - 1) + nextVal) / 2;
+            //        }
+            //    }
+            //}
+            //for (int i = (angleData.Count- ang - 1); i < angleData.Count; i++)
+            //{
+            //    if (distanceData.ElementAt(i) <= 1)
+            //    {
+            //        double nextVal;
+            //        int nextPoint = (i);
+            //        do
+            //        {
+            //            nextPoint++;
+            //        } while ((nextVal = distanceData.ElementAt((nextPoint % ang) + distanceData.Count - ang - 1)) <= 10);
+            //        if (i == distanceData.Count - ang - 1)
+            //        {
+            //            double befVal;
+            //            int befPoint = 0;
+            //            do
+            //            {
+            //                befPoint--;
+            //            } while ((befVal = distanceData.ElementAt((ang + befPoint) + distanceData.Count - ang - 1)) <= 10);
+            //            distanceData[distanceData.Count - ang - 1] = (befVal + nextVal) / 2;
+            //        }
+            //        else
+            //        {
+            //            distanceData[i] = (distanceData.ElementAt(i - 1) + nextVal) / 2;
+            //        }
+            //    }
+            //}
+            //for (int i= 1; i < n - 1; i++)
+            //{
+            //    for(int  p = 0; p < ang; p++)
+            //    {
+            //        int currentpoint = (i * ang) + p;
+            //        if (distanceData.ElementAt(currentpoint) == 1)
+            //        {
+            //            int upperpoint = ((i + 1) * ang) + p;
+            //            int tmp = i;
+            //            while (distanceData[upperpoint] <= 10)
+            //            {
+            //                tmp++;
+            //                upperpoint = ((tmp + 1) * ang) + p;
+            //            }
+            //            int lowerpoint = ((i - 1) * ang) + p;
+            //            distanceData[currentpoint] = (distanceData[upperpoint] + distanceData[lowerpoint]) / 2;
+            //        }
+
+            //        int pos = p + (i * ang);
+            //        if (distanceData.ElementAt(pos) == 0)
+            //        {
+            //            double nextVal;
+            //            int nextPoint = (pos);
+            //            do
+            //            {
+            //                nextPoint++;
+            //            } while ((nextVal = distanceData.ElementAt((nextPoint % ang) + distanceData.Count - ang - 1)) <= 10);
+            //            if (i == distanceData.Count - ang - 1)
+            //            {
+            //                double befVal;
+            //                int befPoint = 0;
+            //                do
+            //                {
+            //                    befPoint--;
+            //                } while ((befVal = distanceData.ElementAt((ang + befPoint) + distanceData.Count - ang - 1)) <= 10);
+            //                distanceData[pos] = (befVal + nextVal) / 2;
+            //            }
+            //            else
+            //            {
+            //                distanceData[pos] = (distanceData.ElementAt(pos - 1) + nextVal) / 2;
+            //            }
+            //        }
+            //    }
+
+            //}
+            int currentPoint = 0;
+            int lastPoint = 0;
+            for (int i = 0; i < n; i++)
             {
-                if (distanceData.ElementAt(i) <= 1)
+                if (i == 0) lastPoint = 0;
+                else lastPoint += ang;
+                for (int j = 0; j < ang; j++)
                 {
-                    double nextVal;
-                    int nextPoint = (i);
-                    do
+                    if (distanceData.ElementAt(currentPoint) <= 10)
                     {
-                        nextPoint++;
-                    } while ((nextVal = distanceData.ElementAt(nextPoint % ang) ) <= 10);
-                    if (i == 0)
-                    {
-                        double befVal;
-                        int befPoint = 0;
+                        double nextVal;
+                        int nextPoint = (currentPoint);
                         do
                         {
-                            befPoint--;
-                        } while ((befVal = distanceData.ElementAt((ang + befPoint))) <= 10);
-                        distanceData[0] = (befVal + nextVal) / 2;
-                    }
-                    else
-                    {
-                        distanceData[i] = (distanceData.ElementAt(i - 1) + nextVal) / 2;
-                    }
-                }
-            }
-            for (int i = (angleData.Count- ang - 1); i < angleData.Count; i++)
-            {
-                if (distanceData.ElementAt(i) <= 1)
-                {
-                    double nextVal;
-                    int nextPoint = (i);
-                    do
-                    {
-                        nextPoint++;
-                    } while ((nextVal = distanceData.ElementAt((nextPoint % ang) + distanceData.Count - ang - 1)) <= 10);
-                    if (i == distanceData.Count - ang - 1)
-                    {
-                        double befVal;
-                        int befPoint = 0;
-                        do
+                            nextPoint++;
+                        } while ((nextVal = distanceData.ElementAt((nextPoint % ang)+lastPoint)) <= 10);
+                        if (currentPoint == 0)
                         {
-                            befPoint--;
-                        } while ((befVal = distanceData.ElementAt((ang + befPoint) + distanceData.Count - ang - 1)) <= 10);
-                        distanceData[distanceData.Count - ang - 1] = (befVal + nextVal) / 2;
-                    }
-                    else
-                    {
-                        distanceData[i] = (distanceData.ElementAt(i - 1) + nextVal) / 2;
-                    }
-                }
-            }
-            for (int i= 1; i < n - 1; i++)
-            {
-                for(int  p = 0; p < ang; p++)
-                {
-                    int currentpoint = (i * ang) + p;
-                    if (distanceData.ElementAt(currentpoint) == 1)
-                    {
-                        int upperpoint = ((i + 1) * ang) + p;
-                        int tmp = i;
-                        while (distanceData[upperpoint] <= 10)
-                        {
-                            tmp++;
-                            upperpoint = ((tmp + 1) * ang) + p;
+                            double befVal;
+                            int befPoint = 0;
+                            do
+                            {
+                                befPoint++;
+                            } while ((befVal = distanceData.ElementAt((ang - (befPoint)) + lastPoint)) <= 10);
+                            distanceData[0] = (befVal + nextVal) / 2;
                         }
-                        int lowerpoint = ((i - 1) * ang) + p;
-                        distanceData[currentpoint] = (distanceData[upperpoint] + distanceData[lowerpoint]) / 2;
+                        else
+                        {
+                            distanceData[currentPoint] = (distanceData.ElementAt(currentPoint - 1) + nextVal) / 2;
+                        }
                     }
+                    currentPoint++;
                 }
             }
         }
@@ -382,21 +445,22 @@ namespace LiMESH
         {
             int n = h.Count;
             int currentPoint = 0;
+            int ang = angleList.Count;
             int lastPoint = 0;
             for (int i = 0; i < n ; i++)
             {
                 if (i == 0) lastPoint = 0;
-                else lastPoint += dataDetail[i - 1];
-                for (int j = 0; j < dataDetail[i]; j++)
+                else lastPoint += ang;
+                for (int j = 0; j < ang; j++)
                 {
-                    if (distances.ElementAt(currentPoint)==0)
+                    if (distanceData.ElementAt(currentPoint)==0)
                     {
                         double nextVal;
                         int nextPoint = (currentPoint);
                         do
                         {
                             nextPoint++;
-                        } while ((nextVal = distances.ElementAt(nextPoint % dataDetail[i])) == 0);
+                        } while ((nextVal = distanceData.ElementAt(nextPoint % ang)) == 0);
                         if (currentPoint == 0)
                         {
                             double befVal;
@@ -404,12 +468,12 @@ namespace LiMESH
                             do
                             {
                                 befPoint++;
-                            } while ((befVal = distances.ElementAt((dataDetail[i]-(befPoint)) +lastPoint)) == 0);
-                            distances[0] = (befVal + nextVal) / 2;
+                            } while ((befVal = distanceData.ElementAt((ang - (befPoint)) +lastPoint)) == 0);
+                            distanceData[0] = (befVal + nextVal) / 2;
                         }
                         else 
                         {
-                            distances[currentPoint] = (distances.ElementAt(currentPoint-1) + nextVal) / 2;
+                            distanceData[currentPoint] = (distanceData.ElementAt(currentPoint-1) + nextVal) / 2;
                         }
                     }
                     currentPoint++;
@@ -447,7 +511,7 @@ namespace LiMESH
                     heights.Add(Double.Parse(token[2]));
                     if (checkLayer(Double.Parse(token[2])))
                     {
-                        dataDetail[h.Count] = 0;
+                        //dataDetail[h.Count] = 0;
                         h.Add(Double.Parse(token[2]));
                         aPh.Clear();
                     }
@@ -456,14 +520,12 @@ namespace LiMESH
                         
                         aPh.Add(Double.Parse(token[1]));
                     }
-                    dataDetail[h.Count - 1]=aPh.Count;
+                    //dataDetail[h.Count - 1]=aPh.Count;
                 }
                 MessageBox.Show("Load data from file completed!\nProgram will calculate after ok!\nPlease wait for a while...");
 
                 collect();
-                distances = distanceData;
-                angles = angleData;
-                heights = heightData;
+                
 
                 cal();
                 triangleInDices();
@@ -631,6 +693,9 @@ namespace LiMESH
                     int f = (j % angle) + mul;
                     int s = ((j + 1) % angle) + mul;
                     int t = ((j + 1) % angle) + ((i + 1) * angle);
+
+
+                    
                     //System.out.println("Triangle in dice : " + f + " , " + s + " , " + t);
                     triangleIndice.Add(f);
                     triangleIndice.Add(s);
@@ -638,11 +703,11 @@ namespace LiMESH
                     triangleIndice.Add(t);
                     triangleIndice.Add(s);
                     triangleIndice.Add(f);
-
+                    //lb.Items.Add(":: Data : " + f + " : " + s + " : " + t + " ::");
                     int f1 = (j % angle) + mul;
                     int s1 = ((j + 1) % angle) + ((i + 1) * angle);
                     int t1 = (j % angle) + ((i + 1) * angle);
-
+                    //lb1.Items.Add(":: Data : " + f1 + " : " + s1 + " : " + t1 + " ::");
                     triangleIndice.Add(f1);
                     triangleIndice.Add(s1);
                     triangleIndice.Add(t1);
@@ -655,7 +720,7 @@ namespace LiMESH
                 }
                 
             }
-
+            MessageBox.Show("Triangle In dices : " + distanceData.Count);
 
         }
         private void point(double x, double y, double z)
@@ -700,10 +765,11 @@ namespace LiMESH
                     using (StreamWriter sw = new StreamWriter(s))
                     {
                         int i = 0;
-                        while (i < coordinateX.Count)
+                        while (i < distanceData.Count)
                         {
-                            sw.Write(distances.ElementAt(i) + "," +
-                                angles.ElementAt(i) + "," +
+                            sw.Write(distanceData.ElementAt(i) + "," +
+                                angleData.ElementAt(i) + "," +
+                                heightData.ElementAt(i) + "," +
                                 coordinateX.ElementAt(i) + "," +
                                 coordinateY.ElementAt(i) + "," +
                                 coordinateZ.ElementAt(i) + "\n");
@@ -1473,7 +1539,8 @@ namespace LiMESH
 
             //richTextBox1.AppendText(Get_Data_From_FTP_Server_File());
             pgBar.Visibility = Visibility.Visible;
-
+            lb.Visibility = Visibility.Hidden;
+            lb1.Visibility = Visibility.Hidden;
         }
 
         private String Get_Data_From_FTP_Server_File()
