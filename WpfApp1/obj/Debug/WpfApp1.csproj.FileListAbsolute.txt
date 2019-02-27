@@ -18,3 +18,4 @@ C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\obj\Debug\WpfApp1.csproj.CoreCompi
 C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\obj\Debug\WpfApp1.csproj.CopyComplete
 C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\obj\Debug\LiMESH.exe
 C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\obj\Debug\LiMESH.pdb
+C:\Users\BenzRST\source\repos\WpfApp1\WpfApp1\obj\Debug\WpfApp1.csprojAssemblyReference.cache

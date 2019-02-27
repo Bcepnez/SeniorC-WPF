@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -28,12 +29,19 @@ namespace LiMESH
         static int meshSelected = 0;
         static int pointCloudSelected = 1;
         static int notSelected = 2;
+        static string FTPSERVER = "ftp://192.168.1.48/";
 
         List<double> coordinateX = new List<double>();
         List<double> coordinateY = new List<double>();
         List<double> coordinateZ = new List<double>();
         List<double> distances = new List<double>();
-        
+        BackgroundWorker worker = new BackgroundWorker();
+        List<double> angleList = new List<double>();
+        List<double> heightList = new List<double>();
+        List<double> distanceData = new List<double>();
+        List<double> angleData = new List<double>();
+        List<double> heightData = new List<double>();
+
         List<double> angles = new List<double>();
         List<double> heights = new List<double>();
 
@@ -48,12 +56,13 @@ namespace LiMESH
         Color ColorTest;
         bool LightStatus;
 
-   
+        
+
 
         public MainWindow()
         {
             InitializeComponent();
-            zoomValue.Text = zoom.Value.ToString();
+            zoomValue.Text = (1 / (zoom.Value/ 1000)).ToString();
             zoom.IsEnabled = false;
             slider1.IsEnabled = false;
             slider1_Copy.IsEnabled = false;
@@ -124,104 +133,7 @@ namespace LiMESH
         {
             int ang = angleList.Count;
             int n = angleData.Count / ang;
-            //MessageBox.Show("Data Layer : "+n);
-            //for(int i = 0; i < ang; i++)
-            //{
-            //    if (distanceData.ElementAt(i) <= 1)
-            //    {
-            //        double nextVal;
-            //        int nextPoint = (i);
-            //        do
-            //        {
-            //            nextPoint++;
-            //        } while ((nextVal = distanceData.ElementAt(nextPoint % ang) ) <= 10);
-            //        if (i == 0)
-            //        {
-            //            double befVal;
-            //            int befPoint = 0;
-            //            do
-            //            {
-            //                befPoint--;
-            //            } while ((befVal = distanceData.ElementAt((ang + befPoint))) <= 10);
-            //            distanceData[0] = (befVal + nextVal) / 2;
-            //        }
-            //        else
-            //        {
-            //            distanceData[i] = (distanceData.ElementAt(i - 1) + nextVal) / 2;
-            //        }
-            //    }
-            //}
-            //for (int i = (angleData.Count- ang - 1); i < angleData.Count; i++)
-            //{
-            //    if (distanceData.ElementAt(i) <= 1)
-            //    {
-            //        double nextVal;
-            //        int nextPoint = (i);
-            //        do
-            //        {
-            //            nextPoint++;
-            //        } while ((nextVal = distanceData.ElementAt((nextPoint % ang) + distanceData.Count - ang - 1)) <= 10);
-            //        if (i == distanceData.Count - ang - 1)
-            //        {
-            //            double befVal;
-            //            int befPoint = 0;
-            //            do
-            //            {
-            //                befPoint--;
-            //            } while ((befVal = distanceData.ElementAt((ang + befPoint) + distanceData.Count - ang - 1)) <= 10);
-            //            distanceData[distanceData.Count - ang - 1] = (befVal + nextVal) / 2;
-            //        }
-            //        else
-            //        {
-            //            distanceData[i] = (distanceData.ElementAt(i - 1) + nextVal) / 2;
-            //        }
-            //    }
-            //}
-            //for (int i= 1; i < n - 1; i++)
-            //{
-            //    for(int  p = 0; p < ang; p++)
-            //    {
-            //        int currentpoint = (i * ang) + p;
-            //        if (distanceData.ElementAt(currentpoint) == 1)
-            //        {
-            //            int upperpoint = ((i + 1) * ang) + p;
-            //            int tmp = i;
-            //            while (distanceData[upperpoint] <= 10)
-            //            {
-            //                tmp++;
-            //                upperpoint = ((tmp + 1) * ang) + p;
-            //            }
-            //            int lowerpoint = ((i - 1) * ang) + p;
-            //            distanceData[currentpoint] = (distanceData[upperpoint] + distanceData[lowerpoint]) / 2;
-            //        }
-
-            //        int pos = p + (i * ang);
-            //        if (distanceData.ElementAt(pos) == 0)
-            //        {
-            //            double nextVal;
-            //            int nextPoint = (pos);
-            //            do
-            //            {
-            //                nextPoint++;
-            //            } while ((nextVal = distanceData.ElementAt((nextPoint % ang) + distanceData.Count - ang - 1)) <= 10);
-            //            if (i == distanceData.Count - ang - 1)
-            //            {
-            //                double befVal;
-            //                int befPoint = 0;
-            //                do
-            //                {
-            //                    befPoint--;
-            //                } while ((befVal = distanceData.ElementAt((ang + befPoint) + distanceData.Count - ang - 1)) <= 10);
-            //                distanceData[pos] = (befVal + nextVal) / 2;
-            //            }
-            //            else
-            //            {
-            //                distanceData[pos] = (distanceData.ElementAt(pos - 1) + nextVal) / 2;
-            //            }
-            //        }
-            //    }
-
-            //}
+            
             int currentPoint = 0;
             int lastPoint = 0;
             for (int i = 0; i < n; i++)
@@ -257,13 +169,8 @@ namespace LiMESH
                 }
             }
         }
-        BackgroundWorker worker = new BackgroundWorker();
-        List<double> angleList = new List<double>(); 
-        List<double> heightList = new List<double>();
-        List<double> distanceData = new List<double>();
-        List<double> angleData = new List<double>();
-        List<double> heightData = new List<double>();
 
+        List<int> binnings = new List<int>();
         private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -281,15 +188,16 @@ namespace LiMESH
                 {
                     String[] token = data.Split(',');
                     distances.Add(Double.Parse(token[0]));
-                    angles.Add(Double.Parse(token[1]));
+                    //angles.Add((Double.Parse(token[1])));
+                    angles.Add((int)(Double.Parse(token[1])));
                     heights.Add(Double.Parse(token[2]));
+                    //binning.Items.Add((int)(Double.Parse(token[1])));
                 }
                 MessageBox.Show("Load data from file completed!\nPlease wait for a while...");
                 collect();
                 cal();
                 triangleInDices();
                 MessageBox.Show("Calculate data completed!"); 
-                pgBar.Visibility = Visibility.Hidden;
                 Light.SelectedIndex = 1;
                 cbColors.SelectedIndex = 72;
                 type.SelectedIndex = 0;
@@ -301,6 +209,7 @@ namespace LiMESH
         } 
         private void collect()
         {
+            preprocess();
             angleList = angles.Distinct().ToList(); ;
             angleList.Sort();
             heightList = heights.Distinct().ToList();
@@ -308,6 +217,7 @@ namespace LiMESH
             fill();
             datarestruct();
             showData(); 
+
         }
         private void showData()
         {
@@ -316,27 +226,60 @@ namespace LiMESH
                 ShowareaList.Items.Add("No." + ((i % angleList.Count)+1) + ": Dis :" + distanceData.ElementAt(i) + ": Angle :" + angleData.ElementAt(i)+": Height :"+ heightData.ElementAt(i));
             }
         }
-        private void fill()
+        private void preprocess()
         {
-            int n = heightList.Count;
-            int ang = angleList.Count;
-            int total = n * ang;
-            for (int i = 0; i < total; i++)
+            int totals = distances.Count;
+            for (int i = 0; i < distances.Count; i++)
             {
-                distanceData.Add(1);
-                angleData.Add(angleList.ElementAt(i%ang));
-                heightData.Add(heightList.ElementAt(i / ang));
+                if (angles[i%distances.Count] == angles[(i + 1)%distances.Count])
+                {
+                    if (distances[i % distances.Count] != 0 && distances[(i + 1) % distances.Count] != 0)
+                        distances[i % distances.Count] = (distances[i % distances.Count] + distances[(i + 1) % distances.Count]) / 2;
+                    else
+                    {
+                        if (distances[i] == 0) distances[i] = distances[i + 1];
+                        else distances[i] = distances[i];
+                    }
+                    distances.RemoveAt(i + 1);
+                    heights.RemoveAt(i + 1);
+                    angles.RemoveAt(i + 1);
+                }    
             }
+        }
+        private void fillInData()
+        {
             int totals = distances.Count;
             int pos = 0;
+            //for (int i = 0; i < totals; i++)
+            //{
+            //    while (angles.ElementAt(i) != angleList.ElementAt(pos % angleList.Count))
+            //    {
+            //        pos++;
+            //    }
+            //    distanceData[pos] = distances.ElementAt(i);
+            //}
             for (int i = 0; i < totals; i++)
             {
-                while (angles.ElementAt(i) != angleList.ElementAt(pos % angleList.Count))
+                while (angles[i] != angleData[pos])
                 {
                     pos++;
                 }
-                distanceData[pos] = distances.ElementAt(i);
+                distanceData[pos] = distances[i];
             }
+        }
+        private void fill()
+        {
+            int n = heightList.Count;
+            int ang = 360;/*angleList.Count;*/
+            int total = n * ang;
+                        
+            for (int i = 0; i < total; i++)
+            {
+                distanceData.Add(1);
+                angleData.Add(angleList.ElementAt(i % ang));
+                heightData.Add(heightList.ElementAt(i / ang));
+            }
+            fillInData();
         }
         private void triangleInDices()
         {
@@ -378,12 +321,7 @@ namespace LiMESH
             coordinateY.Add(y);
             coordinateZ.Add(z);
         }
-        private void sendata(double coX, double coY, double coZ)
-        {
-            coordinateX.Add(coX);
-            coordinateY.Add(coY);
-            coordinateZ.Add(coZ);
-        }
+
         private double toRadians(double angleVal)
         {
             return (Math.PI / 180) * angleVal;
@@ -397,17 +335,7 @@ namespace LiMESH
         {
 
         }
-
-        private void ShowArea_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void Test(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("No action perform Now!");
-        }
-
+       
         private void Zoom_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             getZoomValue();
@@ -416,7 +344,7 @@ namespace LiMESH
         private void getZoomValue()
         {
             double zoomVal = zoom.Value;
-            zoomValue.Text = zoomVal.ToString();
+            zoomValue.Text = (1/(zoomVal/1000)).ToString();
             scale.ScaleX = 1 / zoomVal;
             scale.ScaleY = 1 / zoomVal;
             scale.ScaleZ = 1 / zoomVal;
@@ -780,62 +708,6 @@ namespace LiMESH
             else CreatePointCloud(positionPoint);
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            ipGet();
-        }
-        
-        private void ipGet()
-        {
-            //string strHostName = string.Empty;
-
-            //textblox.Text = "";
-
-            //// Getting Ip address of local machine...
-            //// First get the host name of local machine.
-            //IPGlobalProperties network = IPGlobalProperties.GetIPGlobalProperties();
-            //TcpConnectionInformation[] connections = network.GetActiveTcpConnections();
-            //for(int i = 0;i<connections.Length;i++)
-            //{
-            //    textblox.Text += connections[i].ToString() + "\n";
-            //}
-            ////strHostName = Dns.GetHostName();
-
-            ////// Then using host name, get the IP address list..
-
-            ////IPHostEntry ipEntry = Dns.GetHostByName(strHostName);
-            ////IPAddress[] iparrAddr = ipEntry.AddressList;
-
-            ////if (iparrAddr.Length > 0)
-            ////{
-            ////    for (int intLoop = 0; intLoop < iparrAddr.Length; intLoop++)
-            ////        textblox.Text += iparrAddr[intLoop].ToString()+"\n";
-            ////}
-            ///
-            //string ipAddr = ip.Text;
-            //System.Diagnostics.Process process = new System.Diagnostics.Process();
-            //System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            //startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            //startInfo.FileName = "cmd.exe";
-            //startInfo.Arguments = "ping "+ipAddr;
-            //process.StartInfo = startInfo;
-            //process.Start();
-
-            //string ipAddr = ip.Text;
-            //if(ipAddr.Equals(""))
-            //{
-            //    ipAddr = "localhost";
-            //}
-            //Ping ping = new Ping();
-            //PingReply pingresult = ping.Send(ipAddr);
-            ////if (pingresult.Status.ToString() == "Success")
-            ////{
-            ////    MessageBox.Show("Ping to "+ipAddr+":"+pingresult.Status.ToString());
-            ////}
-            //MessageBox.Show("Ping to " + ipAddr + ":" + pingresult.Status.ToString());
-            ////textbox.Text = ipAddr;
-        }
-
         private void export(object sender, RoutedEventArgs e)
         {
             export();
@@ -879,32 +751,6 @@ namespace LiMESH
             //return result;
             //FTPData.AppendText(result);
             MessageBox.Show("Get file completed!");
-            //if (result != null)
-            //{
-
-            //    bgIMG.Visibility = Visibility.Visible;
-            //    cleardata();
-            //    String data = result;
-            //    if (data != null)
-            //    {
-            //        String[] token = data.Split(',');
-            //        distances.Add(Double.Parse(token[0]));
-            //        angles.Add(Double.Parse(token[1]));
-            //        heights.Add(Double.Parse(token[2]));
-            //    }
-            //    MessageBox.Show("Load data from file completed!\nPlease wait for a while...");
-            //    collect();
-            //    cal();
-            //    triangleInDices();
-            //    MessageBox.Show("Calculate data completed!");
-            //    pgBar.Visibility = Visibility.Hidden;
-            //    Light.SelectedIndex = 1;
-            //    cbColors.SelectedIndex = 72;
-            //    type.SelectedIndex = 0;
-            //    type.IsEnabled = true;
-            //    ColorBoxEnable();
-            //    bgIMG.Visibility = Visibility.Hidden;
-            //}
 
         }
 
@@ -912,7 +758,7 @@ namespace LiMESH
         {
             //used to display data into rich text.box
             String result = String.Empty;
-            string ftpURI = "ftp://192.168.1.106/" + fi;
+            string ftpURI = FTPSERVER + fi;
             string fileExt = Path.GetExtension(fi);
 
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpURI);
@@ -928,7 +774,7 @@ namespace LiMESH
             result = reader.ReadToEnd();
             //save file locally on your pc
             string filename = "Recieved_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + fileExt;
-            MessageBox.Show("You Select : " + fileList.SelectedItem.ToString()+"\nSave as : "+filename);
+            MessageBox.Show("You Select : " + fileList.SelectedItem.ToString()+"\nSave as : "+filename+"\nSave file completed!");
             using (StreamWriter file = File.CreateText(filename))
             {
                 file.Write(result);
@@ -936,14 +782,13 @@ namespace LiMESH
             }
             reader.Close();
             response.Close();
-            MessageBox.Show("Get file completed!");
         }
 
         private void ListFiles()
         {
             try
             {
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://192.168.1.106/");
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(FTPSERVER);
                 request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
 
                 request.Method = WebRequestMethods.Ftp.ListDirectory;
@@ -951,7 +796,7 @@ namespace LiMESH
                 StreamReader streamReader = new StreamReader(response.GetResponseStream());
 
                 List<string> directories = new List<string>();
-
+                
                 string line = streamReader.ReadLine();
                 while (!string.IsNullOrEmpty(line))
                 {
@@ -1068,12 +913,78 @@ namespace LiMESH
 
         private void FileList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Get_Data_From_FTP_Server_File(fileList.SelectedItem.ToString());
+            if (fileList.SelectedIndex != -1)
+            {
+                Get_Data_From_FTP_Server_File(fileList.SelectedItem.ToString());
+            }
         }
 
         private void MenuItem_Click_1(object sender, RoutedEventArgs e)
         {
+            fileList.Items.Clear();
+            fileList.IsSynchronizedWithCurrentItem = false;
+            fileList.SelectedItem = null;
             ListFiles();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            slider1_Copy.Value = 0;
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            slider1.Value = 0;
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            zoom.Value = 1000;
+        }
+
+        private void Icon_MouseMove(object sender, MouseEventArgs e)
+        {
+            //myPCamera.LookDirection = new Vector3D(myPCamera.LookDirection.X - 150, myPCamera.LookDirection.Y - 150, myPCamera.LookDirection.Z - 50);
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            //myPCamera.LookDirection = new Vector3D(-10 ,-4 , -5 - movex.Value);
+        }
     }
+
+    class LookBackConverter : IValueConverter
+    {
+
+        #region IValueConverter Members
+
+
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+
+            return (new Point3D(0, 0, 0)-(Point3D)value);
+        }
+
+
+
+        public object ConvertBack(
+
+            object value, Type targetType,
+
+            object parameter,
+
+            System.Globalization.CultureInfo culture)
+
+        {
+
+            return null;
+
+        }
+
+
+
+        #endregion
+    }
+
 }

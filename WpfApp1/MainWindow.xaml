@@ -5,10 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="LiMESH" Height="566.977" Width="937.6"
+        Title="LiMESH" Height="647.777" Width="976.8"
         Icon="logoMax.ico"
         WindowStartupLocation="CenterScreen"
-        MouseWheel="Grid_MouseWheel" ResizeMode="CanResizeWithGrip" Background="White"
+        MouseMove="Icon_MouseMove"
+       
+        MouseWheel="Grid_MouseWheel" 
+        ResizeMode="NoResize" 
+        Background="White"
         
         >
     <DockPanel>
@@ -31,127 +35,61 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="_Server File Manger" Click="MenuItem_Click_1" />
-            <!--<MenuItem Header="_FTP Recieve File" Click="MenuItem_Click" Visibility="Visible"/>-->
+            <MenuItem Header="_Server File Manager" Click="MenuItem_Click_1" />
         </Menu>
         <TabControl Name="tab" SelectionChanged="TabControl_SelectionChanged" Margin="0,0.4,0,0.2" Width="auto">
             <TabItem Header="Mesh renderer" Margin="-2,0,-1.8,-2">
                 <DockPanel Margin="0,0,-0.4,-1.2">
                     <Grid Background="#123" DockPanel.Dock="Left" Margin="0,0,0,-0.2" Width="159">
-
-
-                        <ComboBox Name="type" Height="20" Margin="65,181,10,0" VerticalAlignment="Top" SelectionChanged="Type_SelectionChanged">
+                        <ListBox Name="ShowareaList" HorizontalAlignment="Left" Height="145" Margin="8,10,0,0" VerticalAlignment="Top" Width="141"/>
+                        <ComboBox Name="type" Height="20" Margin="65,167,10,0" VerticalAlignment="Top" SelectionChanged="Type_SelectionChanged">
                             <ComboBoxItem >Mesh</ComboBoxItem>
                             <ComboBoxItem >Point cloud</ComboBoxItem>
                         </ComboBox>
-                        <Label Content="Show as:" Margin="0,176,0,0" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65" Foreground="White"/>
-                        <ComboBox Name="Light" Margin="65,212,10,0" Height="20" VerticalAlignment="Top" SelectionChanged="ComboBox_SelectionChanged">
+                        <ComboBox Name="Light" Margin="65,198,10,0" Height="20" VerticalAlignment="Top" SelectionChanged="ComboBox_SelectionChanged">
                             <ComboBoxItem>Ambient Light</ComboBoxItem>
                             <ComboBoxItem>Direction Light</ComboBoxItem>
                         </ComboBox>
-                        <ComboBox Height="20" Name="cbColors" VerticalAlignment="Top" SelectionChanged="cbColors_SelectionChanged" Margin="65,242,10,0" />
-                        <Label Content="Light as:" Margin="0,206,0,0" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65" Foreground="White"/>
-                        <Label Content="Color :" Margin="0,239,0,0" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65" Foreground="White"/>
+                        <ComboBox Height="20" Name="cbColors" VerticalAlignment="Top" SelectionChanged="cbColors_SelectionChanged" Margin="65,228,10,0" />
+                        <Label Content="Show as:" Margin="0,162,0,0" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65" Foreground="White"/>
+                        <Label Content="Light as:" Margin="0,192,0,0" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65" Foreground="White"/>
+                        <Label Content="Color :" Margin="0,225,0,0" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65" Foreground="White"/>
+                        <ListBox Name="fileList" HorizontalAlignment="Left" Height="48" Margin="7,281,0,0" VerticalAlignment="Top" Width="144" SelectionChanged="FileList_SelectionChanged"/>
 
-                        <TextBox HorizontalAlignment="Left" Height="19" Margin="72,382,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="77" Name="zoomValue"/>
-                        <Label Content="Zoom : " Foreground="White" HorizontalAlignment="Left" Height="30" Margin="10,378,0,0" VerticalAlignment="Top" Width="62"/>
+                        <TextBox HorizontalAlignment="Left" Height="19" Margin="72,478,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="55" Name="zoomValue"/>
+                        <Label Content="Zoom : " Foreground="White" HorizontalAlignment="Left" Height="30" Margin="10,474,0,0" VerticalAlignment="Top" Width="62"/>
 
-                        <TextBox HorizontalAlignment="Left" Height="19" Margin="74,411,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="75" x:Name="rotateX"/>
-                        <Label Content="Rotate X : " Foreground="White" HorizontalAlignment="Left" Height="24" Margin="7,407,0,0" VerticalAlignment="Top" Width="67"/>
+                        <TextBox HorizontalAlignment="Left" Height="19" Margin="72,508,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="55" x:Name="rotateX"/>
+                        <Label Content="Rotate X : " Foreground="White" HorizontalAlignment="Left" Height="24" Margin="7,503,0,0" VerticalAlignment="Top" Width="67"/>
+                        <TextBox HorizontalAlignment="Left" Height="20" Margin="72,535,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="55" x:Name="rotateZ"/>
+                        <Label Content="Rotate Z : " Foreground="White" HorizontalAlignment="Left" Height="34" Margin="9,531,0,0" VerticalAlignment="Top" Width="96"/>
+                        <Label Content="List of file on server :" Margin="0,252,0,0" Height="29" VerticalAlignment="Top" HorizontalAlignment="Left" Width="131" Foreground="White"/>
+                        <!--<ListBox Name="binning" HorizontalAlignment="Left" Height="140" Margin="7,334,0,0" VerticalAlignment="Top" Width="144"/>-->
 
-                        <TextBox HorizontalAlignment="Left" Height="19" Margin="74,439,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="75" x:Name="rotateZ"/>
-                        <Label Content="Rotate Z : " Foreground="White" HorizontalAlignment="Left" Height="34" Margin="9,435,0,0" VerticalAlignment="Top" Width="96"/>
-
-                        <TextBox Name="textbox" HorizontalAlignment="Left" Height="49" Margin="358,99,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="189"/>
-                        <TextBlock Name="textblox" HorizontalAlignment="Left" Height="47" Margin="358,346,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="189"/>
-                        <!--<Button Content="Export Model" Click="export" Margin="12,242,10,215.4"/>-->
-                        <Button Content="FTP Server IP" Visibility="Hidden" Click="Button_Click_1" Margin="8,267,0,0" HorizontalAlignment="Left" Width="141" Height="24" VerticalAlignment="Top" />
-                        <!--<TextBox Name="ip" Height="26" TextWrapping="Wrap"  Margin="10,291,10,166.4" RenderTransformOrigin="0.5,0.5"/>-->
-                        <TextBox Name="myIP" Visibility="Hidden" Height="26" TextWrapping="Wrap"  Margin="8,236,0,0" RenderTransformOrigin="0.5,0.5" IsReadOnly="True" HorizontalAlignment="Left" Width="142" VerticalAlignment="Top"/>
-                        <!--<RichTextBox Name="FTPData" Visibility="Visible" HorizontalAlignment="Left" Height="45" Margin="7,275,0,0" VerticalAlignment="Top" Width="142"/>-->
-
-                        <!--<ProgressBar Visibility="Visible" Name="pgBar" HorizontalAlignment="Left" Height="17" Margin="10,463,0,0" VerticalAlignment="Top" Width="139" Value="{Binding WorkerState}"/>-->
-                        <ProgressBar Visibility="Hidden" x:Name="pgBar" HorizontalAlignment="Left" Height="17" Margin="10,463,0,0" VerticalAlignment="Top" Width="139"  IsIndeterminate="True"/>
-                        <!--<TextBlock Visibility="Visible" Text="{Binding ElementName=pgBar, Path=Value, StringFormat={}{0:0.00}%}" Name="pgDes" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="42,464,0,0" Width="78" TextAlignment="Center"/>-->
-                        <TextBox Visibility="Hidden" Name="textBox1" HorizontalAlignment="Left" Height="22" Margin="12,284,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="139"/>
-                        <TextBox Visibility="Hidden" Name="ip" HorizontalAlignment="Left" Height="20" Margin="12,242,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="138"/>
-                        <ListBox Name="ShowareaList" HorizontalAlignment="Left" Height="151" Margin="8,10,0,0" VerticalAlignment="Top" Width="141"/>
-                        <ListBox Name="fileList" HorizontalAlignment="Left" Height="98" Margin="7,275,0,0" VerticalAlignment="Top" Width="144" SelectionChanged="FileList_SelectionChanged"/>
 
 
                     </Grid>
 
 
                     <Grid>
-                        <Image Source="HartLogo.png" Name="bgIMG" Margin="0,0,5.2,78.8" IsEnabled="True" Opacity="0.3"/>
-                        <Viewport3D Name="viewport3D1" Margin="0,0,5.2,-0.6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Image Source="HartLogo.png" Name="bgIMG" Margin="0,0,5.6,78.4" IsEnabled="True" Opacity="0.3"/>
+                        <Viewport3D Name="viewport3D1" Margin="0,0,5.6,-0.6">
                             <Viewport3D.Camera>
-                                <PerspectiveCamera x:Name = "camMain" Position = "10 5 4" LookDirection = "-10 -5 -4">
+                                <PerspectiveCamera x:Name = "camMain" 
+                                                   Position = "10 5 4" 
+                                                   LookDirection = "-10 -5 -4">
                                 </PerspectiveCamera>
                             </Viewport3D.Camera>
-
-                            <!--<ModelVisual3D>
-                                <ModelVisual3D.Content>
-                                    -->
-                            <!--<SpotLight x:Name="spotLight" Color="#666666" Direction="0 0 -1" InnerConeAngle="30" OuterConeAngle="60" Position="0 1 30" />-->
-                            <!--<DirectionalLight x:Name = "dirLightMain" Direction = "-1,-1,-1"/>-->
-                            <!--<Model3DGroup>
-                                        <AmbientLight x:Name="ambientLight" Color="#666666"/>
-                                        <DirectionalLight x:Name="directionalLight" Color="#444444" Direction="0 -1 -1">
-                                        </DirectionalLight>
-                                        <SpotLight x:Name="spotLight" Color="#666666" Direction="0 0 -1" InnerConeAngle="30" OuterConeAngle="60" Position="0 1 30" >
-                                        </SpotLight>
-                                    </Model3DGroup>-->
-                            <!--
-                                </ModelVisual3D.Content>
-                            </ModelVisual3D>-->
 
                             <ModelVisual3D x:Name = "MyModel">
                                 <ModelVisual3D.Content>
                                     <GeometryModel3D>
-                                        <!--<GeometryModel3D.Geometry>-
-                                            <MeshGeometry3D x:Name = "meshMain"
-                                            Positions="0 0 0  1 0 0  1 0 1  0 0 1  0 1 0  1 1 0  1 1 1  0 1 1"
-                                            Normals="0 0 1  0 0 1  0 0 1  0 0 1"
-                                            TextureCoordinates="0 1  1 1  0 0  1 0"
-                                            
-                                            TriangleIndices="
-                                                        0 1 5  
-                                                        5 1 0 
-                                                        
-                                                        1 2 6
-                                                        6 2 1
-                                                        
-                                                        2 3 7
-                                                        7 3 2
-                                                        
-                                                        3 0 4
-                                                        4 0 3
-                                                        
-                                                        
-                                                        
-                                                        0 5 4
-                                                        4 5 0
-                                                        
-                                                        1 6 5
-                                                        5 6 1
-                                                        
-                                                        2 7 6
-                                                        6 7 2
-                                                        
-                                                        3 4 7
-                                                        7 4 3
-                                                        "
-                                                        >
-                                            </MeshGeometry3D>
-                                        </GeometryModel3D.Geometry>-->
-
                                         <GeometryModel3D.Material>
                                             <DiffuseMaterial x:Name = "matDiffuseMain">
                                                 <DiffuseMaterial.Brush>
-
-                                                    <!--<ImageBrush ImageSource="Noey.jpg" />-->
-
                                                     <SolidColorBrush Color = "Violet"/>
                                                 </DiffuseMaterial.Brush>
                                             </DiffuseMaterial>
@@ -181,9 +119,16 @@
                         </Viewport3D>
 
 
-                        <Slider  x:Name = "slider1_Copy"  
+
+                        <Slider  x:Name = "slider1_Copy" 
+                                 Minimum="-360"
+                                Value="0"
                         Maximum = "360" 
-                        RenderTransformOrigin="0.5,0.5" ValueChanged="Slider1_Copy_ValueChanged" Background="{x:Null}" Margin="529,200,-189.8,0" HorizontalAlignment="Left" Width="428" Height="32" VerticalAlignment="Top" >
+                        RenderTransformOrigin="0.5,0.5" ValueChanged="Slider1_Copy_ValueChanged" Background="{x:Null}" 
+                                 Margin="545,0,-209.4,319.4" 
+                                 Height="32"
+                                 VerticalAlignment="Bottom" 
+                                 HorizontalAlignment="Left" Width="470" >
                             <Slider.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -193,13 +138,22 @@
                                 </TransformGroup>
                             </Slider.RenderTransform>
                         </Slider>
-                        <Label Content="Rotate Z" Height="24" Margin="696,438,0.2,0" VerticalAlignment="Top"/>
+                        <Label Content="Rotate Z" Height="24" Margin="747,485,4.6,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+                            <Label.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="-90.566"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Label.RenderTransform>
+                        </Label>
 
-                        <Slider Margin="-191,187,0,0" 
-                            VerticalAlignment="Top" Height="32" 
-                                Value="100"
-                            Maximum = "1000"
-                            RenderTransformOrigin="0.493,0.508" Name="zoom" ValueChanged="Zoom_ValueChanged" Background="{x:Null}" ScrollViewer.CanContentScroll="True" HorizontalAlignment="Left" Width="415">
+                        <Slider Margin="-239,240,0,0" 
+                            VerticalAlignment="Top" Height="20" 
+                                Value="1000"
+                            Maximum = "10000"
+                            RenderTransformOrigin="0.493,0.508" Name="zoom" ValueChanged="Zoom_ValueChanged" Background="{x:Null}" ScrollViewer.CanContentScroll="True" HorizontalAlignment="Left" Width="500">
 
                             <Slider.RenderTransform>
                                 <TransformGroup>
@@ -210,46 +164,35 @@
                                 </TransformGroup>
                             </Slider.RenderTransform>
                         </Slider>
-                        <Label Content="Zoom" HorizontalAlignment="Left" Height="34" Margin="0,419,0,0" VerticalAlignment="Top" Width="42"/>
+                        <Label Content="Zoom" HorizontalAlignment="Left" Height="34" Margin="0,505,0,0" VerticalAlignment="Top" Width="42"/>
 
                         <Slider x:Name = "slider1" 
+                                Minimum="-360"
+                                Value="0"
                             Maximum = "360" 
-                            ValueChanged="Slider1_ValueChanged" Height="32" VerticalAlignment="Top" Background="{x:Null}" Margin="87,448,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="581" >
-                        </Slider>
-                        <Label Content="Rotate X" Height="24" Margin="333,419,348.2,0" VerticalAlignment="Top"/>
-                        <ListBox Name="lb" Visibility="Hidden" HorizontalAlignment="Left" Height="365" Margin="42,25,0,0" VerticalAlignment="Top" Width="344"/>
-                        <ListBox Name="lb1" Visibility="Hidden" HorizontalAlignment="Left" Height="365" Margin="391,25,0,0" VerticalAlignment="Top" Width="344"/>
-                        <!--<RichTextBox Name="show" HorizontalAlignment="Left" Height="308" Margin="99,83,0,0" VerticalAlignment="Top" Width="394">
-                            <FlowDocument>
-                                <Paragraph>
-                                    <Run/>
-                                </Paragraph>
-                            </FlowDocument>
-                        </RichTextBox>-->
+                            ValueChanged="Slider1_ValueChanged" Height="25" VerticalAlignment="Top" Background="{x:Null}" Margin="96,539,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="643" />
+                        <Label Content="Rotate X" Height="24" Margin="10,539,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65"/>
+                        <Button Content="0" Margin="-26,535,810.6,0" Click="Button_Click" RenderTransformOrigin="0.5,0.5" Height="21" VerticalAlignment="Top" HorizontalAlignment="Right" Width="21">
+                            <Button.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="-0.8"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Button.RenderTransform>
+                        </Button>
+                        <Button Content="0" Height="21" Margin="-26,507,810.6,0" VerticalAlignment="Top" Click="Button_Click_1" HorizontalAlignment="Right" Width="21" />
+                        <Button Content="0" Height="21" Margin="-26,481,810.6,0" VerticalAlignment="Top" Click="Button_Click_2" HorizontalAlignment="Right" Width="21"  />
+                        <!--<Slider Name="movex" HorizontalAlignment="Left" 
+                                Maximum="10"
+                                Value="0"
+                                Minimum="-10"
+                                Height="30" Margin="155,171.4,0,0" Grid.Row="1" VerticalAlignment="Top" Width="501" ValueChanged="Slider_ValueChanged"/>-->
 
                     </Grid>
                 </DockPanel>
             </TabItem>
-            <!--<TabItem Header="UAV">
-                <Grid>
-                    <RichTextBox Name="showArea2" Height="60" Margin="5,2,0,0" VerticalAlignment="Top" Width="778" HorizontalAlignment="Left" TextChanged="ShowArea_TextChanged"/>
-                    <Button Content="Scan for IP" Height="36" Width="86" Margin="10,357,0,0" Click="Button_Click" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                    <ComboBox Name="ipList" HorizontalAlignment="Left" Margin="112,67,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="IpList_SelectionChanged"/>
-                    <Label Content="Connect over IP :" Margin="5,68,818.6,0" Height="31" VerticalAlignment="Top"/>
-                    <Button Content="Button" Height="88" Width="169" Click="Button_Click_1" Margin="378,153,378.6,241.4"/>
-                    <Label Content="Ground Speed" HorizontalAlignment="Left" Margin="10,267,0,0" VerticalAlignment="Top"/>
-                    <TextBox Name="gndSPTb" HorizontalAlignment="Left" Height="23" Margin="112,267,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                    <Label Content="UAV Yaw" HorizontalAlignment="Left" Margin="10,298,0,0" VerticalAlignment="Top"/>
-                    <TextBox Name="YaTb" HorizontalAlignment="Left" Height="23" Margin="112,298,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                    <Label Content="Altitude" HorizontalAlignment="Left" Margin="10,236,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="AltitudeTb" HorizontalAlignment="Left" Height="23" Margin="112,236,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                    <TextBox Name="textbox" HorizontalAlignment="Left" Height="49" Margin="358,99,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="189"/>
-                    <TextBlock Name="textblox" HorizontalAlignment="Left" Height="47" Margin="358,346,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="189"/>
-                    <Button Content="export" Height="88" Width="169" Click="export" Margin="378,246,378.6,148.4"/>
-                    <TextBox Name="ip" Height="26" TextWrapping="Wrap"  Margin="358,68,378.6,388.4"/>
-
-                </Grid>
-            </TabItem>-->
         </TabControl>
     </DockPanel>
 </Window>
