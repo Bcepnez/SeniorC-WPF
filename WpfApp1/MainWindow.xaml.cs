@@ -1,20 +1,13 @@
 ﻿using Microsoft.Win32;
-using SimpleTCP;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -34,17 +27,22 @@ namespace LiMESH
         List<double> coordinateX = new List<double>();
         List<double> coordinateY = new List<double>();
         List<double> coordinateZ = new List<double>();
-        List<double> distances = new List<double>();
-        BackgroundWorker worker = new BackgroundWorker();
-        List<double> angleList = new List<double>();
-        List<double> heightList = new List<double>();
-        List<double> distanceData = new List<double>();
-        List<double> angleData = new List<double>();
-        List<double> heightData = new List<double>();
 
+        //Collect all data from file
+        List<double> distances = new List<double>();
         List<double> angles = new List<double>();
         List<double> heights = new List<double>();
 
+        //List of Distince data
+        List<double> angleList = new List<double>();
+        List<double> heightList = new List<double>();
+
+        //filled in data ready to calculate
+        List<double> distanceData = new List<double>();
+        List<double> angleData = new List<double>();
+        List<double> heightData = new List<double>();
+        
+        //3D Control
         Point3DCollection positionPoint = new Point3DCollection();
         Int32Collection triangleIndice = new Int32Collection();
 
@@ -53,16 +51,22 @@ namespace LiMESH
         AxisAngleRotation3D rotate3 = new AxisAngleRotation3D();
         ScaleTransform3D scale = new ScaleTransform3D();
         PerspectiveCamera myPCamera = new PerspectiveCamera();
-        Color ColorTest;
-        bool LightStatus;
 
+        //Color Contrrol
+        Color ColorTest;
         
 
+        //Display type control
+        private bool mode;
+        bool LightStatus;
 
+        BackgroundWorker worker = new BackgroundWorker();
+
+        //Setting method
         public MainWindow()
         {
             InitializeComponent();
-            zoomValue.Text = (1 / (zoom.Value/ 1000)).ToString();
+            zoomValue.Text = (1 / (zoom.Value / 1000)).ToString();
             zoom.IsEnabled = false;
             slider1.IsEnabled = false;
             slider1_Copy.IsEnabled = false;
@@ -82,7 +86,6 @@ namespace LiMESH
                     cbColors.Items.Add(c);
             }
         }
-
         private void ColorBoxEnable()
         {
             cbColors.IsEnabled = true;
@@ -95,29 +98,71 @@ namespace LiMESH
         {
             myPCamera.Position = new Point3D((myPCamera.Position.X - e.Delta / 360D), (myPCamera.Position.Y - e.Delta / 360D), (myPCamera.Position.Z - e.Delta / 360D));
         }
-        private void Grid_MouseMove(object sender, MouseWheelEventArgs e)
+        private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            camMain.Position = new Point3D((camMain.Position.X - e.Delta / 360D), (camMain.Position.Y - e.Delta / 360D), (camMain.Position.Z - e.Delta / 360D));
+            Close();
         }
-        private void cleardata()
+        private void Icon_MouseMove(object sender, MouseEventArgs e)
         {
-            ShowareaList.Items.Clear();
-            triangleIndice.Clear();
-            positionPoint.Clear();
-            distances.Clear();
-            angles.Clear();
-            heights.Clear();
+            //myPCamera.LookDirection = new Vector3D(myPCamera.LookDirection.X - 150, myPCamera.LookDirection.Y - 150, myPCamera.LookDirection.Z - 50);
+        }
 
-            distanceData.Clear();
-            angleData.Clear();
-            heightData.Clear();
-            angleList.Clear();
-            heightList.Clear();
-            
-            coordinateX.Clear();
-            coordinateY.Clear();
-            coordinateZ.Clear();
-        }   
+
+                                    
+        //Selection
+        private void Type_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int Item = type.SelectedIndex;
+            if (Item == meshSelected)
+            {
+                render();
+                Light.IsEnabled = true;
+                mode = true;
+            }
+            else if (Item == pointCloudSelected)
+            {
+                CreatePointCloud(positionPoint);
+                Light.IsEnabled = false;
+                mode = false;
+            }
+            else if (Item == notSelected)
+            {
+                zoom.IsEnabled = false;
+                slider1.IsEnabled = false;
+                slider1_Copy.IsEnabled = false;
+                zoomValue.IsReadOnly = true;
+                rotateX.IsReadOnly = true;
+                rotateZ.IsReadOnly = true;
+                Light.IsEnabled = false;
+                ColorBoxDisable();
+            }
+        }
+
+        private void Light_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int select = Light.SelectedIndex;
+            if (select == 0)
+            {
+                LightStatus = true;
+            }
+            else if (select == 1)
+            {
+                LightStatus = false;
+            }
+            render();
+        }
+
+        private void cbColors_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            System.Drawing.Color color = (System.Drawing.Color)cbColors.SelectedItem;
+            ColorTest = System.Windows.Media.Color.FromRgb(color.R, color.G, color.B);
+            if (mode) render();
+            else CreatePointCloud(positionPoint);
+        }
+
+
+
+        //Calculate method
         private void cal()
         {
             int max = distanceData.Count;
@@ -133,7 +178,7 @@ namespace LiMESH
         {
             int ang = angleList.Count;
             int n = angleData.Count / ang;
-            
+
             int currentPoint = 0;
             int lastPoint = 0;
             for (int i = 0; i < n; i++)
@@ -149,7 +194,7 @@ namespace LiMESH
                         do
                         {
                             nextPoint++;
-                        } while ((nextVal = distanceData.ElementAt((nextPoint % ang)+lastPoint)) <= 10);
+                        } while ((nextVal = distanceData.ElementAt((nextPoint % ang) + lastPoint)) <= 10);
                         if (currentPoint == 0)
                         {
                             double befVal;
@@ -169,265 +214,78 @@ namespace LiMESH
                 }
             }
         }
-
-        List<int> binnings = new List<int>();
-        private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+        private void CreatePointCloud(Point3DCollection points)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "UAV Data Files (*.csv)|*.csv|All files (*.*)|*.*";
-            openFileDialog.FilterIndex = 1;
+            zoom.IsEnabled = true;
+            slider1.IsEnabled = true;
+            slider1_Copy.IsEnabled = true;
+            Model3DGroup myModel3DGroup = new Model3DGroup();
+            GeometryModel3D myGeometryModel = new GeometryModel3D();
+            ModelVisual3D myModelVisual3D = new ModelVisual3D();
+            myPCamera.Position = new Point3D(6, 5, 4);
+            myPCamera.LookDirection = new Vector3D(-6, -5, -4);
+            myPCamera.FieldOfView = 60;
+            viewport3D1.Camera = myPCamera;
 
-            if (openFileDialog.ShowDialog() == true)
+            DirectionalLight myDirectionalLight = new DirectionalLight();
+            myDirectionalLight.Color = Colors.White;
+            myDirectionalLight.Direction = new Vector3D(-1, -1, -1);
+
+            myModel3DGroup.Children.Add(myDirectionalLight);
+
+            MeshGeometry3D myMeshGeometry3D = new MeshGeometry3D();
+
+            //// Create a collection of vertex positions for the MeshGeometry3D. 
+            for (int i = 0; i < points.Count; i++)
             {
-                
-                bgIMG.Visibility = Visibility.Visible;
-                cleardata();
-                System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);
-                String data;
-                while ((data = sr.ReadLine()) != null)
-                {
-                    String[] token = data.Split(',');
-                    distances.Add(Double.Parse(token[0]));
-                    //angles.Add((Double.Parse(token[1])));
-                    angles.Add((int)(Double.Parse(token[1])));
-                    heights.Add(Double.Parse(token[2]));
-                    //binning.Items.Add((int)(Double.Parse(token[1])));
-                }
-                MessageBox.Show("Load data from file completed!\nPlease wait for a while...");
-                collect();
-                cal();
-                triangleInDices();
-                MessageBox.Show("Calculate data completed!"); 
-                Light.SelectedIndex = 1;
-                cbColors.SelectedIndex = 72;
-                type.SelectedIndex = 0;
-                type.IsEnabled = true;
-                ColorBoxEnable();
-                bgIMG.Visibility = Visibility.Hidden;
-                sr.Close();
+                AddCubeToMesh(myMeshGeometry3D, points[i], 10);
             }
-        } 
-        private void collect()
-        {
-            preprocess();
-            angleList = angles.Distinct().ToList(); ;
-            angleList.Sort();
-            heightList = heights.Distinct().ToList();
-            heightList.Sort();
-            fill();
-            datarestruct();
-            showData(); 
 
-        }
-        private void showData()
-        {
-            for (int i = 0; i < (distanceData.Count); i++)
-            {
-                ShowareaList.Items.Add("No." + ((i % angleList.Count)+1) + ": Dis :" + distanceData.ElementAt(i) + ": Angle :" + angleData.ElementAt(i)+": Height :"+ heightData.ElementAt(i));
-            }
-        }
-        private void preprocess()
-        {
-            int totals = distances.Count;
-            for (int i = 0; i < distances.Count; i++)
-            {
-                if (angles[i%distances.Count] == angles[(i + 1)%distances.Count])
-                {
-                    if (distances[i % distances.Count] != 0 && distances[(i + 1) % distances.Count] != 0)
-                        distances[i % distances.Count] = (distances[i % distances.Count] + distances[(i + 1) % distances.Count]) / 2;
-                    else
-                    {
-                        if (distances[i] == 0) distances[i] = distances[i + 1];
-                        else distances[i] = distances[i];
-                    }
-                    distances.RemoveAt(i + 1);
-                    heights.RemoveAt(i + 1);
-                    angles.RemoveAt(i + 1);
-                }    
-            }
-        }
-        private void fillInData()
-        {
-            int totals = distances.Count;
-            int pos = 0;
-            //for (int i = 0; i < totals; i++)
-            //{
-            //    while (angles.ElementAt(i) != angleList.ElementAt(pos % angleList.Count))
-            //    {
-            //        pos++;
-            //    }
-            //    distanceData[pos] = distances.ElementAt(i);
-            //}
-            for (int i = 0; i < totals; i++)
-            {
-                while (angles[i] != angleData[pos])
-                {
-                    pos++;
-                }
-                distanceData[pos] = distances[i];
-            }
-        }
-        private void fill()
-        {
-            int n = heightList.Count;
-            int ang = 360;/*angleList.Count;*/
-            int total = n * ang;
-                        
-            for (int i = 0; i < total; i++)
-            {
-                distanceData.Add(1);
-                angleData.Add(angleList.ElementAt(i % ang));
-                heightData.Add(heightList.ElementAt(i / ang));
-            }
-            fillInData();
-        }
-        private void triangleInDices()
-        {
-            //Create Triangle in dice
-            int n = heightList.Count;
-            int angle = angleList.Count;
-            for(int i = 0; i < n - 1; i++)
-            {
-                int mul = (i * angle);
-                for (int j = 0; j < angle; j++)
-                {
-                    int f = (j % angle) + mul;
-                    int s = ((j + 1) % angle) + mul;
-                    int t = ((j + 1) % angle) + ((i + 1) * angle);
-                    triangleIndice.Add(f);
-                    triangleIndice.Add(s);
-                    triangleIndice.Add(t);
-                    triangleIndice.Add(t);
-                    triangleIndice.Add(s);
-                    triangleIndice.Add(f);
+            //// Apply the mesh to the geometry model.
+            myGeometryModel.Geometry = myMeshGeometry3D;
 
-                    int f1 = (j % angle) + mul;
-                    int s1 = ((j + 1) % angle) + ((i + 1) * angle);
-                    int t1 = (j % angle) + ((i + 1) * angle);
-                    triangleIndice.Add(f1);
-                    triangleIndice.Add(s1);
-                    triangleIndice.Add(t1);
-                    triangleIndice.Add(t1);
-                    triangleIndice.Add(s1);
-                    triangleIndice.Add(f1);
-                }
-            }
-        }
-        private void point(double x, double y, double z)
-        {
-            positionPoint.Add(new Point3D(x, z, y));
 
-            coordinateX.Add(x);
-            coordinateY.Add(y);
-            coordinateZ.Add(z);
-        }
+            DiffuseMaterial diffuseMaterial = new DiffuseMaterial();
+            SolidColorBrush solidColor = new SolidColorBrush();
+            //solidColor.Color = Colors.Red;
+            solidColor.Color = ColorTest;
+            diffuseMaterial.Brush = solidColor;
+            myGeometryModel.Material = diffuseMaterial;
 
-        private double toRadians(double angleVal)
-        {
-            return (Math.PI / 180) * angleVal;
-        }
-        private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+            //// Add the geometry model to the model group.
+            myModel3DGroup.Children.Add(myGeometryModel);
 
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+            //// Add the group of models to the ModelVisual3d.
+            myModelVisual3D.Content = myModel3DGroup;
 
-        }
-       
-        private void Zoom_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            getZoomValue();
-        }
-
-        private void getZoomValue()
-        {
-            double zoomVal = zoom.Value;
-            zoomValue.Text = (1/(zoomVal/1000)).ToString();
-            scale.ScaleX = 1 / zoomVal;
-            scale.ScaleY = 1 / zoomVal;
-            scale.ScaleZ = 1 / zoomVal;
-        }
-
-        private void Slider1_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
+            ////RotateTranform
+            rotate1.Axis = new Vector3D(0, 0, 1);
+            rotate2.Axis = new Vector3D(0, 1, 0);
             rotate2.Angle = slider1.Value;
-            rotateX.Text = slider1.Value.ToString();
-        }
-
-        private void Slider1_Copy_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
+            rotate3.Axis = new Vector3D(1, 0, 0);
             rotate3.Angle = slider1_Copy.Value;
-            rotateZ.Text = slider1_Copy.Value.ToString();
+            RotateTransform3D rotatetransformx = new RotateTransform3D();
+            rotatetransformx.Rotation = rotate3;
+            RotateTransform3D rotatetransformy = new RotateTransform3D();
+            rotatetransformy.Rotation = rotate2;
+            RotateTransform3D rotatetransformz = new RotateTransform3D();
+            rotatetransformz.Rotation = rotate1;
+            Transform3DGroup transform3dgroup = new Transform3DGroup();
+
+            scale.CenterX = 0;
+            scale.CenterY = 0;
+            scale.CenterZ = 0;
+            getZoomValue();
+
+            transform3dgroup.Children.Add(scale);
+            transform3dgroup.Children.Add(rotatetransformx);
+            transform3dgroup.Children.Add(rotatetransformy);
+            transform3dgroup.Children.Add(rotatetransformz);
+            myModelVisual3D.Transform = transform3dgroup;
+
+            viewport3D1.Children.Clear();
+            viewport3D1.Children.Add(myModelVisual3D);
         }
-
-        private void AddCubeToMesh(MeshGeometry3D mesh, Point3D center, double size)
-        {
-            if (mesh != null)
-            {
-                int offset = mesh.Positions.Count;
-
-                mesh.Positions.Add(new Point3D(center.X - size, center.Y + size, center.Z - size));
-                mesh.Positions.Add(new Point3D(center.X + size, center.Y + size, center.Z - size));
-                mesh.Positions.Add(new Point3D(center.X + size, center.Y + size, center.Z + size));
-                mesh.Positions.Add(new Point3D(center.X - size, center.Y + size, center.Z + size));
-                mesh.Positions.Add(new Point3D(center.X - size, center.Y - size, center.Z - size));
-                mesh.Positions.Add(new Point3D(center.X + size, center.Y - size, center.Z - size));
-                mesh.Positions.Add(new Point3D(center.X + size, center.Y - size, center.Z + size));
-                mesh.Positions.Add(new Point3D(center.X - size, center.Y - size, center.Z + size));
-
-                mesh.TriangleIndices.Add(offset + 3);
-                mesh.TriangleIndices.Add(offset + 2);
-                mesh.TriangleIndices.Add(offset + 6);
-
-                mesh.TriangleIndices.Add(offset + 3);
-                mesh.TriangleIndices.Add(offset + 6);
-                mesh.TriangleIndices.Add(offset + 7);
-
-                mesh.TriangleIndices.Add(offset + 2);
-                mesh.TriangleIndices.Add(offset + 1);
-                mesh.TriangleIndices.Add(offset + 5);
-
-                mesh.TriangleIndices.Add(offset + 2);
-                mesh.TriangleIndices.Add(offset + 5);
-                mesh.TriangleIndices.Add(offset + 6);
-
-                mesh.TriangleIndices.Add(offset + 1);
-                mesh.TriangleIndices.Add(offset + 0);
-                mesh.TriangleIndices.Add(offset + 4);
-
-                mesh.TriangleIndices.Add(offset + 1);
-                mesh.TriangleIndices.Add(offset + 4);
-                mesh.TriangleIndices.Add(offset + 5);
-
-                mesh.TriangleIndices.Add(offset + 0);
-                mesh.TriangleIndices.Add(offset + 3);
-                mesh.TriangleIndices.Add(offset + 7);
-
-                mesh.TriangleIndices.Add(offset + 0);
-                mesh.TriangleIndices.Add(offset + 7);
-                mesh.TriangleIndices.Add(offset + 4);
-
-                mesh.TriangleIndices.Add(offset + 7);
-                mesh.TriangleIndices.Add(offset + 6);
-                mesh.TriangleIndices.Add(offset + 5);
-
-                mesh.TriangleIndices.Add(offset + 7);
-                mesh.TriangleIndices.Add(offset + 5);
-                mesh.TriangleIndices.Add(offset + 4);
-
-                mesh.TriangleIndices.Add(offset + 2);
-                mesh.TriangleIndices.Add(offset + 3);
-                mesh.TriangleIndices.Add(offset + 0);
-
-                mesh.TriangleIndices.Add(offset + 2);
-                mesh.TriangleIndices.Add(offset + 0);
-                mesh.TriangleIndices.Add(offset + 1);
-            }
-        }
-
-        private bool mode;
         private void render()
         {
             zoom.IsEnabled = true;
@@ -473,7 +331,7 @@ namespace LiMESH
             else
             {
                 AmbientLight myDirectionalLight = new AmbientLight();
-                myDirectionalLight.Color = Color.FromRgb(66,66,66);
+                myDirectionalLight.Color = Color.FromRgb(66, 66, 66);
                 myModel3DGroup.Children.Add(myDirectionalLight);
 
                 DirectionalLight myDirectionalLight1 = new DirectionalLight();
@@ -584,233 +442,191 @@ namespace LiMESH
             viewport3D1.Children.Clear();
             viewport3D1.Children.Add(myModelVisual3D);
         }
-
-        private void CreatePointCloud(Point3DCollection points)
+        private void AddCubeToMesh(MeshGeometry3D mesh, Point3D center, double size)
         {
-            zoom.IsEnabled = true;
-            slider1.IsEnabled = true;
-            slider1_Copy.IsEnabled = true;
-            Model3DGroup myModel3DGroup = new Model3DGroup();
-            GeometryModel3D myGeometryModel = new GeometryModel3D();
-            ModelVisual3D myModelVisual3D = new ModelVisual3D();
-            myPCamera.Position = new Point3D(6, 5, 4);
-            myPCamera.LookDirection = new Vector3D(-6, -5, -4);
-            myPCamera.FieldOfView = 60;
-            viewport3D1.Camera = myPCamera;
-
-            DirectionalLight myDirectionalLight = new DirectionalLight();
-            myDirectionalLight.Color = Colors.White;
-            myDirectionalLight.Direction = new Vector3D(-1, -1, -1);
-
-            myModel3DGroup.Children.Add(myDirectionalLight);
-
-            MeshGeometry3D myMeshGeometry3D = new MeshGeometry3D();
-
-            //// Create a collection of vertex positions for the MeshGeometry3D. 
-            for (int i = 0; i < points.Count; i++)
+            if (mesh != null)
             {
-                AddCubeToMesh(myMeshGeometry3D, points[i], 0.5);
-            }
+                int offset = mesh.Positions.Count;
 
-            //// Apply the mesh to the geometry model.
-            myGeometryModel.Geometry = myMeshGeometry3D;
+                mesh.Positions.Add(new Point3D(center.X - size, center.Y + size, center.Z - size));
+                mesh.Positions.Add(new Point3D(center.X + size, center.Y + size, center.Z - size));
+                mesh.Positions.Add(new Point3D(center.X + size, center.Y + size, center.Z + size));
+                mesh.Positions.Add(new Point3D(center.X - size, center.Y + size, center.Z + size));
+                mesh.Positions.Add(new Point3D(center.X - size, center.Y - size, center.Z - size));
+                mesh.Positions.Add(new Point3D(center.X + size, center.Y - size, center.Z - size));
+                mesh.Positions.Add(new Point3D(center.X + size, center.Y - size, center.Z + size));
+                mesh.Positions.Add(new Point3D(center.X - size, center.Y - size, center.Z + size));
 
+                mesh.TriangleIndices.Add(offset + 3);
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 6);
 
-            DiffuseMaterial diffuseMaterial = new DiffuseMaterial();
-            SolidColorBrush solidColor = new SolidColorBrush();
-            //solidColor.Color = Colors.Red;
-            solidColor.Color = ColorTest;
-            diffuseMaterial.Brush = solidColor;
-            myGeometryModel.Material = diffuseMaterial;
+                mesh.TriangleIndices.Add(offset + 3);
+                mesh.TriangleIndices.Add(offset + 6);
+                mesh.TriangleIndices.Add(offset + 7);
 
-            //// Add the geometry model to the model group.
-            myModel3DGroup.Children.Add(myGeometryModel);
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 1);
+                mesh.TriangleIndices.Add(offset + 5);
 
-            //// Add the group of models to the ModelVisual3d.
-            myModelVisual3D.Content = myModel3DGroup;
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 5);
+                mesh.TriangleIndices.Add(offset + 6);
 
-            ////RotateTranform
-            rotate1.Axis = new Vector3D(0, 0, 1);
-            rotate2.Axis = new Vector3D(0, 1, 0);
-            rotate2.Angle = slider1.Value;
-            rotate3.Axis = new Vector3D(1, 0, 0);
-            rotate3.Angle = slider1_Copy.Value;
-            RotateTransform3D rotatetransformx = new RotateTransform3D();
-            rotatetransformx.Rotation = rotate3;
-            RotateTransform3D rotatetransformy = new RotateTransform3D();
-            rotatetransformy.Rotation = rotate2;
-            RotateTransform3D rotatetransformz = new RotateTransform3D();
-            rotatetransformz.Rotation = rotate1;
-            Transform3DGroup transform3dgroup = new Transform3DGroup();
+                mesh.TriangleIndices.Add(offset + 1);
+                mesh.TriangleIndices.Add(offset + 0);
+                mesh.TriangleIndices.Add(offset + 4);
 
-            scale.CenterX = 0;
-            scale.CenterY = 0;
-            scale.CenterZ = 0;
-            getZoomValue();
+                mesh.TriangleIndices.Add(offset + 1);
+                mesh.TriangleIndices.Add(offset + 4);
+                mesh.TriangleIndices.Add(offset + 5);
 
-            transform3dgroup.Children.Add(scale);
-            transform3dgroup.Children.Add(rotatetransformx);
-            transform3dgroup.Children.Add(rotatetransformy);
-            transform3dgroup.Children.Add(rotatetransformz);
-            myModelVisual3D.Transform = transform3dgroup;
+                mesh.TriangleIndices.Add(offset + 0);
+                mesh.TriangleIndices.Add(offset + 3);
+                mesh.TriangleIndices.Add(offset + 7);
 
-            viewport3D1.Children.Clear();
-            viewport3D1.Children.Add(myModelVisual3D);
-        }
+                mesh.TriangleIndices.Add(offset + 0);
+                mesh.TriangleIndices.Add(offset + 7);
+                mesh.TriangleIndices.Add(offset + 4);
 
-        private void Type_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            int Item = type.SelectedIndex;
-            if (Item == meshSelected)
-            {
-                render();
-                Light.IsEnabled = true;
-                mode = true;
-            }
-            else if (Item == pointCloudSelected)
-            {
-                CreatePointCloud(positionPoint);
-                Light.IsEnabled = false;
-                mode = false;
-            }
-            else if (Item == notSelected)
-            {
-                zoom.IsEnabled = false;
-                slider1.IsEnabled = false;
-                slider1_Copy.IsEnabled = false;
-                zoomValue.IsReadOnly = true;
-                rotateX.IsReadOnly = true;
-                rotateZ.IsReadOnly = true;
-                Light.IsEnabled = false;
-                ColorBoxDisable();
+                mesh.TriangleIndices.Add(offset + 7);
+                mesh.TriangleIndices.Add(offset + 6);
+                mesh.TriangleIndices.Add(offset + 5);
+
+                mesh.TriangleIndices.Add(offset + 7);
+                mesh.TriangleIndices.Add(offset + 5);
+                mesh.TriangleIndices.Add(offset + 4);
+
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 3);
+                mesh.TriangleIndices.Add(offset + 0);
+
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 0);
+                mesh.TriangleIndices.Add(offset + 1);
             }
         }
-
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void collect()
         {
-            int select = Light.SelectedIndex;
-            if (select == 0)
+            preprocess();
+            angleList = angles.Distinct().ToList(); ;
+            angleList.Sort();
+            heightList = heights.Distinct().ToList();
+            heightList.Sort();
+            fill();
+            datarestruct();
+            showData();
+        }
+        private void showData()
+        {
+            for (int i = 0; i < (distanceData.Count); i++)
             {
-                LightStatus = true;
+                ShowareaList.Items.Add("No." + ((i % angleList.Count) + 1) + ": Dis :" + distanceData.ElementAt(i) + ": Angle :" + angleData.ElementAt(i) + ": Height :" + heightData.ElementAt(i));
             }
-            else if (select == 1)
+        }
+        private void preprocess()
+        {
+            int totals = distances.Count;
+            for (int i = 0; i < distances.Count; i++)
             {
-                LightStatus = false;
+                if (angles[i % distances.Count] == angles[(i + 1) % distances.Count])
+                {
+                    if (distances[i % distances.Count] != 0 && distances[(i + 1) % distances.Count] != 0)
+                        distances[i % distances.Count] = (distances[i % distances.Count] + distances[(i + 1) % distances.Count]) / 2;
+                    else
+                    {
+                        if (distances[i] == 0) distances[i] = distances[i + 1];
+                        else distances[i] = distances[i];
+                    }
+                    distances.RemoveAt(i + 1);
+                    heights.RemoveAt(i + 1);
+                    angles.RemoveAt(i + 1);
+                }
             }
-            render();
+        }
+        private void fillInData()
+        {
+            int totals = distances.Count;
+            int pos = 0;
+            //for (int i = 0; i < totals; i++)
+            //{
+            //    while (angles.ElementAt(i) != angleList.ElementAt(pos % angleList.Count))
+            //    {
+            //        pos++;
+            //    }
+            //    distanceData[pos] = distances.ElementAt(i);
+            //}
+            for (int i = 0; i < totals; i++)
+            {
+                while (angles[i] != angleData[pos])
+                {
+                    pos++;
+                }
+                distanceData[pos] = distances[i];
+            }
+        }
+        private void fill()
+        {
+            int n = heightList.Count;
+            int ang = 360;/*angleList.Count;*/
+            int total = n * ang;
+
+            for (int i = 0; i < total; i++)
+            {
+                distanceData.Add(1);
+                angleData.Add(angleList.ElementAt(i % ang));
+                heightData.Add(heightList.ElementAt(i / ang));
+            }
+            fillInData();
+        }
+        private void triangleInDices()
+        {
+            //Create Triangle in dice
+            int n = heightList.Count;
+            int angle = angleList.Count;
+            for (int i = 0; i < n - 1; i++)
+            {
+                int mul = (i * angle);
+                for (int j = 0; j < angle; j++)
+                {
+                    int f = (j % angle) + mul;
+                    int s = ((j + 1) % angle) + mul;
+                    int t = ((j + 1) % angle) + ((i + 1) * angle);
+                    triangleIndice.Add(f);
+                    triangleIndice.Add(s);
+                    triangleIndice.Add(t);
+                    triangleIndice.Add(t);
+                    triangleIndice.Add(s);
+                    triangleIndice.Add(f);
+
+                    int f1 = (j % angle) + mul;
+                    int s1 = ((j + 1) % angle) + ((i + 1) * angle);
+                    int t1 = (j % angle) + ((i + 1) * angle);
+                    triangleIndice.Add(f1);
+                    triangleIndice.Add(s1);
+                    triangleIndice.Add(t1);
+                    triangleIndice.Add(t1);
+                    triangleIndice.Add(s1);
+                    triangleIndice.Add(f1);
+                }
+            }
+        }
+        private void point(double x, double y, double z)
+        {
+            positionPoint.Add(new Point3D(x, z, y));
+
+            coordinateX.Add(x);
+            coordinateY.Add(y);
+            coordinateZ.Add(z);
+        }
+        private double toRadians(double angleVal)
+        {
+            return (Math.PI / 180) * angleVal;
         }
 
-        private void cbColors_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            System.Drawing.Color color = (System.Drawing.Color)cbColors.SelectedItem;
-            ColorTest = System.Windows.Media.Color.FromRgb(color.R, color.G, color.B);
-            if (mode) render();
-            else CreatePointCloud(positionPoint);
-        }
-
-        private void export(object sender, RoutedEventArgs e)
-        {
-            export();
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            //richTextBox1.AppendText(Get_Data_From_FTP_Server_File());
-            Get_Data_From_FTP_Server_File();
-        }
         
 
-        private void Get_Data_From_FTP_Server_File()
-        {
-            //used to display data into rich text.box
-            String result = String.Empty;
-
-
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://192.168.1.106/HW.csv");
-            request.Method = WebRequestMethods.Ftp.DownloadFile;
-            //set up credentials. 
-            request.Credentials = new NetworkCredential("","");
-            //initialize Ftp response.
-            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-            //open readers to read data from ftp 
-            Stream responsestream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(responsestream);
-            //read data from FTP
-            result = reader.ReadToEnd();
-            //save file locally on your pc
-            string filename = "Recieved_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv";
-            using (StreamWriter file = File.CreateText(filename))
-            {
-                file.Write(result);
-                file.Close();
-            }
-            //close readers. 
-            reader.Close();
-            response.Close();
-            //return data from file. 
-            //return result;
-            //FTPData.AppendText(result);
-            MessageBox.Show("Get file completed!");
-
-        }
-
-        private void Get_Data_From_FTP_Server_File(string fi)
-        {
-            //used to display data into rich text.box
-            String result = String.Empty;
-            string ftpURI = FTPSERVER + fi;
-            string fileExt = Path.GetExtension(fi);
-
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpURI);
-            request.Method = WebRequestMethods.Ftp.DownloadFile;
-            //set up credentials. 
-            request.Credentials = new NetworkCredential("", "");
-            //initialize Ftp response.
-            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-            //open readers to read data from ftp 
-            Stream responsestream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(responsestream);
-            //read data from FTP
-            result = reader.ReadToEnd();
-            //save file locally on your pc
-            string filename = "Recieved_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + fileExt;
-            MessageBox.Show("You Select : " + fileList.SelectedItem.ToString()+"\nSave as : "+filename+"\nSave file completed!");
-            using (StreamWriter file = File.CreateText(filename))
-            {
-                file.Write(result);
-                file.Close();
-            }
-            reader.Close();
-            response.Close();
-        }
-
-        private void ListFiles()
-        {
-            try
-            {
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(FTPSERVER);
-                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
-
-                request.Method = WebRequestMethods.Ftp.ListDirectory;
-                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                StreamReader streamReader = new StreamReader(response.GetResponseStream());
-
-                List<string> directories = new List<string>();
-                
-                string line = streamReader.ReadLine();
-                while (!string.IsNullOrEmpty(line))
-                {
-                    fileList.Items.Add(line);
-                    line = streamReader.ReadLine();
-                }
-                streamReader.Close();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
+        //Save method
         private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (ShowareaList.Items.Count != 0)
@@ -847,7 +663,10 @@ namespace LiMESH
                 MessageBox.Show("No data to Save!");
             }
         }
-
+        private void export(object sender, RoutedEventArgs e)
+        {
+            export();
+        }
         private void export()
         {
             string header = "solid MySOLID\n";
@@ -909,8 +728,49 @@ namespace LiMESH
             }
 
         }
+        
 
 
+        //Load method
+        private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "UAV Data Files (*.csv)|*.csv|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 1;
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+
+                bgIMG.Visibility = Visibility.Visible;
+                cleardata();
+                System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);
+                String data;
+                while ((data = sr.ReadLine()) != null)
+                {
+                    String[] token = data.Split(',');
+                    distances.Add(Double.Parse(token[0]));
+                    //angles.Add((Double.Parse(token[1])));
+                    angles.Add((int)(Double.Parse(token[1])));
+                    heights.Add(Double.Parse(token[2]));
+                }
+                MessageBox.Show("Load data from file completed!\nPlease wait for a while...");
+                collect();
+                cal();
+                triangleInDices();
+                MessageBox.Show("Calculate data completed!");
+                Light.SelectedIndex = 1;
+                cbColors.SelectedIndex = 72;
+                type.SelectedIndex = 0;
+                type.IsEnabled = true;
+                ColorBoxEnable();
+                bgIMG.Visibility = Visibility.Hidden;
+                sr.Close();
+            }
+        }
+
+
+
+        //Network method
         private void FileList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (fileList.SelectedIndex != -1)
@@ -918,7 +778,6 @@ namespace LiMESH
                 Get_Data_From_FTP_Server_File(fileList.SelectedItem.ToString());
             }
         }
-
         private void MenuItem_Click_1(object sender, RoutedEventArgs e)
         {
             fileList.Items.Clear();
@@ -926,30 +785,127 @@ namespace LiMESH
             fileList.SelectedItem = null;
             ListFiles();
         }
+        private void Get_Data_From_FTP_Server_File(string fi)
+        {
+            //used to display data into rich text.box
+            String result = String.Empty;
+            string ftpURI = FTPSERVER + fi;
+            string fileExt = Path.GetExtension(fi);
 
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpURI);
+            request.Method = WebRequestMethods.Ftp.DownloadFile;
+            //set up credentials. 
+            request.Credentials = new NetworkCredential("", "");
+            //initialize Ftp response.
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+            //open readers to read data from ftp 
+            Stream responsestream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(responsestream);
+            //read data from FTP
+            result = reader.ReadToEnd();
+            //save file locally on your pc
+            string filename = "Recieved_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + fileExt;
+            MessageBox.Show("You Select : " + fileList.SelectedItem.ToString() + "\nSave as : " + filename + "\nSave file completed!");
+            using (StreamWriter file = File.CreateText(filename))
+            {
+                file.Write(result);
+                file.Close();
+            }
+            reader.Close();
+            response.Close();
+        }
+        private void ListFiles()
+        {
+            try
+            {
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(FTPSERVER);
+                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+
+                request.Method = WebRequestMethods.Ftp.ListDirectory;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                StreamReader streamReader = new StreamReader(response.GetResponseStream());
+
+                List<string> directories = new List<string>();
+
+                string line = streamReader.ReadLine();
+                while (!string.IsNullOrEmpty(line))
+                {
+                    fileList.Items.Add(line);
+                    line = streamReader.ReadLine();
+                }
+
+                streamReader.Close();
+                response.Close();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Server not found");
+            }
+        }
+
+
+
+        //Reset Method
+        private void cleardata()
+        {
+            ShowareaList.Items.Clear();
+            triangleIndice.Clear();
+            positionPoint.Clear();
+            distances.Clear();
+            angles.Clear();
+            heights.Clear();
+
+            distanceData.Clear();
+            angleData.Clear();
+            heightData.Clear();
+            angleList.Clear();
+            heightList.Clear();
+
+            coordinateX.Clear();
+            coordinateY.Clear();
+            coordinateZ.Clear();
+        }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             slider1_Copy.Value = 0;
         }
-
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             slider1.Value = 0;
         }
-
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             zoom.Value = 1000;
         }
 
-        private void Icon_MouseMove(object sender, MouseEventArgs e)
-        {
-            //myPCamera.LookDirection = new Vector3D(myPCamera.LookDirection.X - 150, myPCamera.LookDirection.Y - 150, myPCamera.LookDirection.Z - 50);
-        }
 
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+
+        //Control
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //myPCamera.LookDirection = new Vector3D(-10 ,-4 , -5 - movex.Value);
+
+        }
+        private void Zoom_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            getZoomValue();
+        }
+        private void getZoomValue()
+        {
+            double zoomVal = zoom.Value;
+            zoomValue.Text = (1 / (zoomVal / 1000)).ToString();
+            scale.ScaleX = 1 / zoomVal;
+            scale.ScaleY = 1 / zoomVal;
+            scale.ScaleZ = 1 / zoomVal;
+        }
+        private void Slider1_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            rotate2.Angle = slider1.Value;
+            rotateX.Text = slider1.Value.ToString();
+        }
+        private void Slider1_Copy_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            rotate3.Angle = slider1_Copy.Value;
+            rotateZ.Text = slider1_Copy.Value.ToString();
         }
     }
 

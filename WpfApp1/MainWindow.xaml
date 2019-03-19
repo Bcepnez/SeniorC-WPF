@@ -46,7 +46,7 @@
                             <ComboBoxItem >Mesh</ComboBoxItem>
                             <ComboBoxItem >Point cloud</ComboBoxItem>
                         </ComboBox>
-                        <ComboBox Name="Light" Margin="65,198,10,0" Height="20" VerticalAlignment="Top" SelectionChanged="ComboBox_SelectionChanged">
+                        <ComboBox Name="Light" Margin="65,198,10,0" Height="20" VerticalAlignment="Top" SelectionChanged="Light_SelectionChanged">
                             <ComboBoxItem>Ambient Light</ComboBoxItem>
                             <ComboBoxItem>Direction Light</ComboBoxItem>
                         </ComboBox>
@@ -54,15 +54,15 @@
                         <Label Content="Show as:" Margin="0,162,0,0" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65" Foreground="White"/>
                         <Label Content="Light as:" Margin="0,192,0,0" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65" Foreground="White"/>
                         <Label Content="Color :" Margin="0,225,0,0" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65" Foreground="White"/>
-                        <ListBox Name="fileList" HorizontalAlignment="Left" Height="48" Margin="7,281,0,0" VerticalAlignment="Top" Width="144" SelectionChanged="FileList_SelectionChanged"/>
+                        <ListBox Name="fileList" HorizontalAlignment="Left" Height="188" Margin="7,281,0,0" VerticalAlignment="Top" Width="144" SelectionChanged="FileList_SelectionChanged"/>
 
                         <TextBox HorizontalAlignment="Left" Height="19" Margin="72,478,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="55" Name="zoomValue"/>
                         <Label Content="Zoom : " Foreground="White" HorizontalAlignment="Left" Height="30" Margin="10,474,0,0" VerticalAlignment="Top" Width="62"/>
 
                         <TextBox HorizontalAlignment="Left" Height="19" Margin="72,508,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="55" x:Name="rotateX"/>
-                        <Label Content="Rotate X : " Foreground="White" HorizontalAlignment="Left" Height="24" Margin="7,503,0,0" VerticalAlignment="Top" Width="67"/>
+                        <Label Content="Rotate X : " Foreground="White" HorizontalAlignment="Left" Height="24" Margin="7,503,0,0" VerticalAlignment="Top" Width="65"/>
                         <TextBox HorizontalAlignment="Left" Height="20" Margin="72,535,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="55" x:Name="rotateZ"/>
-                        <Label Content="Rotate Z : " Foreground="White" HorizontalAlignment="Left" Height="34" Margin="9,531,0,0" VerticalAlignment="Top" Width="96"/>
+                        <Label Content="Rotate Z : " Foreground="White" HorizontalAlignment="Left" Height="34" Margin="9,531,0,0" VerticalAlignment="Top" Width="63"/>
                         <Label Content="List of file on server :" Margin="0,252,0,0" Height="29" VerticalAlignment="Top" HorizontalAlignment="Left" Width="131" Foreground="White"/>
                         <!--<ListBox Name="binning" HorizontalAlignment="Left" Height="140" Margin="7,334,0,0" VerticalAlignment="Top" Width="144"/>-->
 
@@ -172,7 +172,7 @@
                             Maximum = "360" 
                             ValueChanged="Slider1_ValueChanged" Height="25" VerticalAlignment="Top" Background="{x:Null}" Margin="96,539,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="643" />
                         <Label Content="Rotate X" Height="24" Margin="10,539,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65"/>
-                        <Button Content="0" Margin="-26,535,810.6,0" Click="Button_Click" RenderTransformOrigin="0.5,0.5" Height="21" VerticalAlignment="Top" HorizontalAlignment="Right" Width="21">
+                        <Button Content="0" Margin="-30,534,814.6,0" Click="Button_Click" RenderTransformOrigin="0.5,0.5" Height="21" VerticalAlignment="Top" HorizontalAlignment="Right" Width="21">
                             <Button.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -182,8 +182,8 @@
                                 </TransformGroup>
                             </Button.RenderTransform>
                         </Button>
-                        <Button Content="0" Height="21" Margin="-26,507,810.6,0" VerticalAlignment="Top" Click="Button_Click_1" HorizontalAlignment="Right" Width="21" />
-                        <Button Content="0" Height="21" Margin="-26,481,810.6,0" VerticalAlignment="Top" Click="Button_Click_2" HorizontalAlignment="Right" Width="21"  />
+                        <Button Content="0" Height="21" Margin="-30,507,814.6,0" VerticalAlignment="Top" Click="Button_Click_1" HorizontalAlignment="Right" Width="21" />
+                        <Button Content="0" Height="21" Margin="-30,476,814.6,0" VerticalAlignment="Top" Click="Button_Click_2" HorizontalAlignment="Right" Width="21"  />
                         <!--<Slider Name="movex" HorizontalAlignment="Left" 
                                 Maximum="10"
                                 Value="0"
