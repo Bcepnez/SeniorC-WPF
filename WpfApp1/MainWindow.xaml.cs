@@ -23,6 +23,7 @@ namespace LiMESH
         static int pointCloudSelected = 1;
         static int notSelected = 2;
         static string FTPSERVER = "ftp://192.168.1.48/";
+        double baseHigh = 0; 
 
         List<double> coordinateX = new List<double>();
         List<double> coordinateY = new List<double>();
@@ -568,7 +569,8 @@ namespace LiMESH
         private void fill()
         {
             int n = heightList.Count;
-            int ang = 360;/*angleList.Count;*/
+            //int ang = 360;/*angleList.Count;*/
+            int ang = angleList.Count;
             int total = n * ang;
 
             for (int i = 0; i < total; i++)
@@ -753,6 +755,13 @@ namespace LiMESH
                     angles.Add((int)(Double.Parse(token[1])));
                     heights.Add(Double.Parse(token[2]));
                 }
+                baseHigh = heights.Min();
+                //MessageBox.Show("Base height : "+baseHigh.ToString());
+                for(int i = 0; i < heights.Count; i++)
+                {
+                    heights[i] = heights[i] - baseHigh;
+                }
+                //MessageBox.Show("Base height After recon : " + heights.Min().ToString());
                 MessageBox.Show("Load data from file completed!\nPlease wait for a while...");
                 collect();
                 cal();
